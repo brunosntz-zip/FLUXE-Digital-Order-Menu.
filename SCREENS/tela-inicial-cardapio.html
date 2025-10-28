@@ -7,16 +7,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/index.css">
 </head>
-<body> <div class="app">
+<body> 
+  <div class="app">
 
     <header class="topbar" aria-label="Header">
       <button class="iconbtn" aria-label="Open menu">
-      
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
           <path d="M3 6h18M3 12h18M3 18h18" stroke="#111" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </button>
-
       <div class="brand">
         <small>Você está em</small>
         <div class="place" aria-label="Location">
@@ -24,9 +23,9 @@
             <path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z" stroke="#111" stroke-width="2" />
             <circle cx="12" cy="10" r="3" stroke="#111" stroke-width="2"/>
           </svg>
-          Le Club </div>
+          Finesse Club
+        </div>
       </div>
-
       <div class="cart-wrap">
         <button class="iconbtn" aria-label="Cart">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -45,7 +44,7 @@
         <path d="M20 20l-3.5-3.5" stroke="#111" stroke-width="2" stroke-linecap="round"/>
       </svg>
     </div>
-
+<!-- todos esses não tem ligação (ainda) com o BD, tudo em hard code-->
     <h2 class="section-title">Os queridinhos!</h2>
     <div class="fade-wrap">
       <div class="hscroll" aria-label="Popular items">
@@ -56,7 +55,6 @@
             <div class="popular-price">R$18</div>
           </div>
         </article>
-
         <article class="popular-card">
           <img src="/imagens/caipirinha de limão.jpeg" alt="Caipirinha">
           <div class="popular-info">
@@ -64,7 +62,6 @@
             <div class="popular-price">R$25</div>
           </div>
         </article>
-
         <article class="popular-card">
           <img src="/imagens/espetinho.jpg" alt="Espetinho">
           <div class="popular-info">
@@ -91,18 +88,17 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    // 3. (A SOLUÇÃO) Espera o HTML e todos os scripts (como o Supabase)
-    //    serem totalmente carregados antes de tentar rodar o código.
+    // aqui ele baixa tudo pra só dps mostrar
     document.addEventListener("DOMContentLoaded", () => {
     
-      // 4. Suas chaves de API (só rodam agora que a página carregou)
+
       const SUPABASE_URL = 'https://fkxejnpjeoctlxiuhpvs.supabase.co';
       const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZreGVqbnBqZW9jdGx4aXVocHZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyMjA1NDksImV4cCI6MjA3Njc5NjU0OX0.gwu5S7lLK4XjBMseNYQavBgWrfidGAgqo17HrfsbIWk'; 
     
-      // 5. Inicializa o cliente Supabase (AGORA 'Supabase' existe)
-      const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      // inicia o supabase
+      const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      // 6. Função principal para carregar os produtos
+      // função basica
       async function carregarProdutos() {
         console.log("Buscando produtos no Supabase...");
 
@@ -111,40 +107,33 @@
           console.error("Erro: container .menu-grid não foi encontrado!");
           return;
         }
+        const { data: produtos, error } = await supabaseClient
+          .from('produto')
+          .select('*');
 
-        // 7. Puxa os dados da tabela 'produto' do seu banco
-        const { data: produtos, error } = await supabase
-          .from('produto')    // O nome da sua tabela
-          .select('*');     // Puxa todas as colunas
-
-        // 8. (QA) Verifica se deu erro (provavelmente RLS)
         if (error) {
           console.error("Erro ao buscar produtos:", error.message);
-          // (QA) Se o erro for "permission denied", você não liberou o SELECT no RLS!
           alert("Ops! Não consegui carregar o cardápio. Verifique suas regras RLS (SELECT) no Supabase.");
           return;
         }
 
-        // 9. (QA) Verifica se não veio nada
-        if (produtos.length === 0) {
+    
+        if (!produtos || produtos.length === 0) {
           console.warn("A busca funcionou, mas não há produtos cadastrados.");
           menuGrid.innerHTML = "<p>Nenhum produto encontrado nesta categoria.</p>";
           return;
         }
 
-        // 10. Se deu tudo certo, limpa o container
         menuGrid.innerHTML = ''; 
 
-        // 11. Faz um loop (forEach) em cada produto que veio do banco
         produtos.forEach(produto => {
-          // 12. Cria o HTML do card para este produto
+          // aqui ele faz o card direto no html pra jogar do BD ate o front (dentro desse card)
           const cardHTML = `
             <article class="card">
               <img class="thumb" src="${produto.foto_url}" alt="${produto.nome}">
               <div class="meta">
                 <div class="name">${produto.nome}</div>
-                <div class="desc">${produto.descricao}</div>
-                <div class="price">R$ ${produto.preco_atual}</div>
+                <div class="desc">${produto.descricao || ''}</div> <div class="price">R$ ${produto.preco_atual}</div>
               </div>
               <button class="add" aria-label="Add ${produto.nome}">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -154,17 +143,17 @@
             </article>
           `;
           
-          // 13. "Joga" o novo card para dentro do <section class="menu-grid">
+          // card para dentro do <section class="menu-grid">
           menuGrid.insertAdjacentHTML('beforeend', cardHTML);
         });
 
         console.log("Cardápio carregado com sucesso!", produtos);
       }
 
-      // 14. Chama a função para rodar
+      
       carregarProdutos();
 
-    }); // <-- Fim do "DOMContentLoaded"
+    });
   </script>
 
 </body>
