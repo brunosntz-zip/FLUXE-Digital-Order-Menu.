@@ -148,7 +148,7 @@
     }
     .add:active{transform:scale(.97)}
 
-    /* Desktop / larger screens */
+    /* redimensionar tela pra desktop*/
     @media (min-width: 720px){
       .hscroll{grid-auto-columns:40%}
       .menu-grid{grid-template-columns: repeat(2, minmax(0,1fr));}
@@ -165,11 +165,6 @@
     }
     .fade-wrap:before{left:-4px; background:linear-gradient(90deg, var(--bg), transparent)}
     .fade-wrap:after{right:-4px; background:linear-gradient(270deg, var(--bg), transparent)}
-
-
-/* ======================== */
-/* SPINNER DE CARREGAMENTO */
-/* ======================== */
 
 /* O "container" que vai centralizar o spinner */
 .spinner-container {

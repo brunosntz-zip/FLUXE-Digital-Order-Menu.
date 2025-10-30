@@ -1,0 +1,10 @@
+ID Bar de teste: b5bcffc5-90c7-4e76-bd19-5c56dbf31b3d
+ID Drinks (categoria produto): 945089fb-0f4a-4628-9dfe-8aa3ec33ae8b
+ID Shots (categoria produto): 47d3c78e-f3b0-4e67-b774-63b67f9c9e85
+
+API's
+anon - public: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZreGVqbnBqZW9jdGx4aXVocHZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyMjA1NDksImV4cCI6MjA3Njc5NjU0OX0.gwu5S7lLK4XjBMseNYQavBgWrfidGAgqo17HrfsbIWk
+
+url:
+
+https://fkxejnpjeoctlxiuhpvs.supabase.co
