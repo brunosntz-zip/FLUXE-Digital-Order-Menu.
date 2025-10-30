@@ -165,3 +165,38 @@
     }
     .fade-wrap:before{left:-4px; background:linear-gradient(90deg, var(--bg), transparent)}
     .fade-wrap:after{right:-4px; background:linear-gradient(270deg, var(--bg), transparent)}
+
+
+/* ======================== */
+/* SPINNER DE CARREGAMENTO */
+/* ======================== */
+
+/* O "container" que vai centralizar o spinner */
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px; /* Um espaço para ele respirar */
+}
+
+/* A "bolinha" que gira */
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #E0E0E0; /* Cor de fundo do spinner */
+  border-bottom-color: var(--blue); /* Cor principal */
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+/* A animação de rotação */
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
