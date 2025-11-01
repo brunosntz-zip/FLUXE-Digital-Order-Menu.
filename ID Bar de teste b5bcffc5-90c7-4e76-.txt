@@ -8,3 +8,8 @@ anon - public: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJl
 url:
 
 https://fkxejnpjeoctlxiuhpvs.supabase.co
+
+superuser:
+user: admin
+email: bruno.ts013@hotmail.com
+password: Neymar#1912
