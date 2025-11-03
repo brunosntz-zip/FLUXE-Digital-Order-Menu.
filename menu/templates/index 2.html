@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fluxe - Digital Order Menu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/index.css">
+</head>
+  <div class="app">
+
+    <!-- Header -->
+    <header class="topbar" aria-label="Header">
+      <button class="iconbtn" aria-label="Open menu">
+     
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M3 6h18M3 12h18M3 18h18" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <div class="brand">
+        <small>Você está em</small>
+        <div class="place" aria-label="Location">
+          <!-- Pin de local -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z" stroke="#111" stroke-width="2" />
+            <circle cx="12" cy="10" r="3" stroke="#111" stroke-width="2"/>
+          </svg>
+          Le Club
+        </div>
+      </div>
+
+      <div class="cart-wrap">
+        <button class="iconbtn" aria-label="Cart">
+          <!-- carrinho/pedido -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M6 6h15l-1.5 9h-12L5 3H2" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="9" cy="20" r="1.7" fill="#111"/><circle cx="18" cy="20" r="1.7" fill="#111"/>
+          </svg>
+        </button>
+        <span class="badge-cart" aria-label="Items in cart">0</span>
+      </div>
+    </header>
+
+    <!-- busca -->
+    <div class="search" role="search">
+      <input type="search" placeholder="Buscar por nome" aria-label="Buscar por nome"/>
+      <svg class="sicon" viewBox="0 0 24 24" fill="none">
+        <circle cx="11" cy="11" r="7" stroke="#111" stroke-width="2"/>
+        <path d="M20 20l-3.5-3.5" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <!-- não tem integração nehuma com banco, todos esses da aba "Os Queridinhos!" estão em hard code" -->
+    <h2 class="section-title">Os queridinhos! ❤️</h2>
+    <div class="fade-wrap">
+      <div class="hscroll" aria-label="Popular items">
+        <!-- card 1 xeque mate hard-->
+        <article class="popular-card">
+          <img src="/imagens/xequemate.webp" alt="Xeque Mate">
+          <div class="popular-info">
+            <div class="popular-title">Xeque Mate</div>
+            <div class="popular-price">R$18</div>
+          </div>
+        </article>
+
+        <!-- Card 2 hard -->
+        <article class="popular-card">
+          <img src="/imagens/caipirinha de limão.jpeg" alt="Caipirinha">
+          <div class="popular-info">
+            <div class="popular-title">Caipirinha</div>
+            <div class="popular-price">R$25</div>
+          </div>
+        </article>
+
+        <!-- Card 3 -->
+        <article class="popular-card">
+          <img src="/imagens/espetinho.jpg" alt="Espetinho">
+          <div class="popular-info">
+            <div class="popular-title">Espetinho</div>
+            <div class="popular-price">R$11</div>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <nav class="tabs" aria-label="Categories">
+      <button class="tab active" aria-current="page">Drinks</button>
+      <button class="tab">Shots</button>
+      <button class="tab">Não Alcoólicos</button>
+    </nav>
+
+    <!-- lista do menu -->
+    <h2 class="section-title">Drinks</h2>
+    <section class="menu-grid" aria-label="Drinks list">
+      <!-- Item -->
+      <article class="card">
+        <img class="thumb" src="/imagens/maracujack.png" alt="MaracuJack">
+        <div class="meta">
+          <div class="name">MaracuJack</div>
+          <div class="desc">Suco de maracujá adoçado e batido com whisky Jack Daniel's.</div>
+          <div class="price">R$42</div>
+        </div>
+        <button class="add" aria-label="Add MaracuJack">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </article>
+
+      <article class="card">
+        <img class="thumb" src="/imagens/caipiroska.jpg" alt="Caipiroska">
+        <div class="meta">
+          <div class="name">Caipiroska</div>
+          <div class="desc">Suco de fruta (limão, abacaxi ou kiwi) misturado com Vodka.</div>
+          <div class="price">R$25</div>
+        </div>
+        <button class="add" aria-label="Add Caipiroska">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </article>
+
+      <article class="card">
+        <img class="thumb" src="/imagens/sexonthebeach.png" alt="Sex on the Beach">
+        <div class="meta">
+          <div class="name">Sex on the Beach</div>
+          <div class="desc">Suco de laranja com groselha e vodka.</div>
+          <div class="price">R$28</div>
+        </div>
+        <button class="add" aria-label="Add Sex on the Beach">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </article>
+
+      <article class="card">
+        <img class="thumb" src="/imagens/mojito.jpeg" alt="Mojito">
+        <div class="meta">
+          <div class="name">Mojito</div>
+          <div class="desc">Rum, hortelã, limão e soda.</div>
+          <div class="price">R$29</div>
+        </div>
+        <button class="add" aria-label="Add Mojito">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </article>
+
+      <article class="card">
+        <img class="thumb" src="/imagens/aperolspritz.png" alt="Aperol Spritz">
+        <div class="meta">
+          <div class="name">Aperol Spritz</div>
+          <div class="desc">Aperol, prosecco e água com gás.</div>
+          <div class="price">R$31</div>
+        </div>
+        <button class="add" aria-label="Add Aperol Spritz">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </article>
+
+      <article class="card">
+        <img class="thumb" src="/imagens/gintropical.png" alt="Gin Tônica">
+        <div class="meta">
+          <div class="name">Gin Tropical</div>
+          <div class="desc">Gin com Red Bull tropical e frutas.</div>
+          <div class="price">R$37</div>
+        </div>
+        <button class="add" aria-label="Add Gin Tropical">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </article>
+    </section>
+
+    <div style="height:18px"></div>
+  </div>
+</body>
+</html>
