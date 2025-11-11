@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detalhes</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="/css/detalhes.css">
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <button class="iconbtn" onclick="window.history.back()" aria-label="Voltar">←</button>
+      <h3>Detalhes</h3>
+      <div style="width:42px"></div>
+    </div>
+
+    <div class="product-detail">
+      <img class="product-image" src="/imagens/xequemate.webp" alt="Xeque Mate">
+
+      <div class="product-info">
+        <small class="muted">Drinks prontos</small>
+        <h2>Xeque Mate</h2>
+        <span class="price">R$18</span>
+
+        <h4>Descrição</h4>
+        <p class="desc">
+          O clássico da malandragem carioca: chá mate com rum, limão e aquele amarguinho refrescante. <br>
+          <strong>Servido com gelo e limão no copo.</strong>
+        </p>
+
+        <div class="extra-item">
+          <div class="extra-info">
+            <span>Gelo Sabor Xeque Mate</span>
+            <small>+ R$2</small>
+          </div>
+          <button class="add-btn" aria-label="Adicionar adicional">+</button>
+        </div>
+
+        <div class="quantity-area">
+          <button class="qty-btn" aria-label="Diminuir">−</button>
+          <span>1</span>
+          <button class="qty-btn" aria-label="Aumentar">+</button>
+        </div>
+
+        <button class="add-cart-btn">Adicionar • R$18</button>
+      </div>
+    </div>
+  </div>
+
+<!-- código em js pras funções de adicionar quantidade-->
+ <script>
+  
+  const qtySpan = document.querySelector('.quantity-area span');
+  const btnMenos = document.querySelectorAll('.qty-btn')[0];
+  const btnMais = document.querySelectorAll('.qty-btn')[1];
+
+  let quantidade = 1;
+
+  btnMais.addEventListener('click', () => {
+    quantidade++;
+    qtySpan.textContent = quantidade;
+  });
+
+  btnMenos.addEventListener('click', () => {
+    if (quantidade > 1) {
+      quantidade--;
+      qtySpan.textContent = quantidade;
+    }
+  });
+
+  // adicional
+  const btnAddGelo = document.querySelector('.add-btn');
+  let geloAdicionado = false;
+
+  btnAddGelo.addEventListener('click', () => {
+    geloAdicionado = !geloAdicionado;
+    btnAddGelo.textContent = geloAdicionado ? '✓' : '+';
+  });
+</script>
+</body>
+</html>
