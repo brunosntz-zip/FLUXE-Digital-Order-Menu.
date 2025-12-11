@@ -1,29 +1,18 @@
-"""
-URL configuration for config project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from cardapio.views import CategoriaProdutoViewSet # Importa nossa "Visão"
+from cardapio.views import CategoriaProdutoViewSet, adicionar_carrinho, ver_carrinho, remover_carrinho, limpar_carrinho
 
-# Cria o router da api
 router = routers.DefaultRouter()
-router.register(r'categorias', CategoriaProdutoViewSet) # Cria a URL 'api/categorias/'
+router.register(r'categorias', CategoriaProdutoViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)), # Liga o roteador na URL 'api/'
+    path('api/', include(router.urls)),
+    
+    # --- ROTAS DO CARRINHO ---
+    path('carrinho/', ver_carrinho, name='ver_carrinho'),
+    path('carrinho/add/<str:produto_id>/', adicionar_carrinho, name='add_carrinho'),
+    path('carrinho/remove/<str:produto_id>/', remover_carrinho, name='remove_carrinho'),
+    path('carrinho/limpar/', limpar_carrinho, name='limpar_carrinho'),
 ]

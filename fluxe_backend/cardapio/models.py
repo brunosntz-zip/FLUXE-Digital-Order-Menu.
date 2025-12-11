@@ -144,8 +144,8 @@ class Pedido(models.Model):
 
 class ItemPedido(models.Model):
     id = models.UUIDField(primary_key=True)
-    pedido = models.ForeignKey('Pedido', models.PROTECT) # <-- CORRIGIDO
-    produto = models.ForeignKey('Produto', models.PROTECT, blank=True, null=True) # <-- CORRIGIDO
+    pedido = models.ForeignKey('Pedido', models.PROTECT)
+    produto = models.ForeignKey('Produto', models.PROTECT, blank=True, null=True)
     nome_produto_snapshot = models.CharField(max_length=100)
     preco_unitario_snapshot = models.DecimalField(max_digits=10, decimal_places=2)
     quantidade = models.IntegerField()
@@ -158,7 +158,7 @@ class ItemPedido(models.Model):
 
 class PedidoStatusHistorico(models.Model):
     id = models.UUIDField(primary_key=True)
-    pedido = models.ForeignKey(Pedido, models.PROTECT) # <-- CORRIGIDO
+    pedido = models.ForeignKey(Pedido, models.PROTECT)
     status = models.CharField(max_length=15)
     alterado_por = models.ForeignKey('Usuario', models.PROTECT, db_column='alterado_por', blank=True, null=True) # <-- CORRIGIDO
     motivo = models.CharField(max_length=255, blank=True, null=True)
