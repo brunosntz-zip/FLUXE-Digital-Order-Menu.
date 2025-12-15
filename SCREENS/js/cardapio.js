@@ -5,31 +5,27 @@ document.addEventListener("DOMContentLoaded", () => {
     
       const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-      
       // Cache de produtos, ele carrega tudo.
       let todosOsProdutos = [];
 
-      
-      // MUDANÇA 2: 'carregarProdutos' virou 'renderizarProdutos'
       // Ela NÃO vai ao Supabase. Ela só "lê" da "gaveta".
-      
       function renderizarProdutos(categoriaId) {
         console.log(`Renderizando produtos da "gaveta" para a categoria: ${categoriaId}`);
 
         const menuGrid = document.querySelector('.menu-grid');
         if (!menuGrid) { return; }
         
-        //FILTRA a "gaveta" (todosOsProdutos)
+        // FILTRA a "gaveta" (todosOsProdutos)
         const produtosFiltrados = todosOsProdutos.filter(produto => produto.categoria_id === categoriaId);
 
-        //Verifica se o filtro encontrou algo
+        // Verifica se o filtro encontrou algo
         if (!produtosFiltrados || produtosFiltrados.length === 0) {
           console.warn("Nenhum produto encontrado para esta categoria.");
           menuGrid.innerHTML = "<p>Nenhum produto encontrado nesta categoria.</p>";
           return;
         }
 
-        //Limpa o grid e desenha os produtos
+        // Limpa o grid e desenha os produtos
         menuGrid.innerHTML = ''; 
 
         produtosFiltrados.forEach(produto => {
@@ -41,11 +37,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="desc">${produto.descricao || ''}</div>
                 <div class="price">R$ ${produto.preco_atual}</div>
               </div>
-              <button class="add" aria-label="Add ${produto.nome}">
+              
+              <a href="http://127.0.0.1:8000/carrinho/add/${produto.id}/" class="add" aria-label="Add ${produto.nome}">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                   <path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-              </button>
+              </a>
+
             </article>
           `;
           menuGrid.insertAdjacentHTML('beforeend', cardHTML);
@@ -54,9 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("Cardápio renderizado da 'gaveta' com sucesso!");
       }
       
-      
-      //função Mestra que carrega tudo
-      
+      // Função Mestra que carrega tudo
       async function carregarDadosIniciais() {
         console.log("Buscando TODOS os dados iniciais do Supabase...");
         
@@ -77,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
           .select('*')
           .order('ordem_exibicao');
 
-        //Puxa TODOS OS PRODUTOS
+        // Puxa TODOS OS PRODUTOS
         const { data: produtos, errorProd } = await supabaseClient
           .from('produto')
           .select('*');
@@ -94,10 +90,10 @@ document.addEventListener("DOMContentLoaded", () => {
         todosOsProdutos = produtos;
         console.log("Gaveta de produtos preenchida!", todosOsProdutos);
 
-        //Limpa o container de tabs
+        // Limpa o container de tabs
         tabsContainer.innerHTML = '';
         
-        //Cria os botões (tabs)
+        // Cria os botões (tabs)
         categorias.forEach((categoria, index) => {
           const isActive = index === 0;
           const tabHTML = `
@@ -120,12 +116,12 @@ document.addEventListener("DOMContentLoaded", () => {
             
             tituloCategoria.textContent = categoriaNome;
             
-            // CHAMA A FUNÇÃO RÁPIDA (que lê da "gaveta")
+            // CHAMA A FUNÇÃO RÁPIDA (que lê da gaveta)
             renderizarProdutos(categoriaId);
           });
         });
         
-        //Carrega os produtos da primeira categoria
+        // Carrega os produtos da primeira categoria
         if (categorias.length > 0) {
           tituloCategoria.textContent = categorias[0].nome;
           renderizarProdutos(categorias[0].id); // Chama a função rápida
@@ -136,7 +132,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
       
-      // (CHAMADA INICIAL) Começa o processo carregando TUDO
       carregarDadosIniciais();
 
-    }); // aq acaba "DOMContentLoaded"
+});
