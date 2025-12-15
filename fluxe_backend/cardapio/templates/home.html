@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -5,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Fluxe - Digital Order Menu</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/tela-inicial-cardapio.css">
+  <link rel="stylesheet" href="{% static 'css/tela-inicial-cardapio.css' %}">
 </head>
 <body> 
   <div class="app">
@@ -23,16 +24,17 @@
             <path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z" stroke="#111" stroke-width="2" />
             <circle cx="12" cy="10" r="3" stroke="#111" stroke-width="2"/>
           </svg>
-          Pub 42
+          Finesse Club
         </div>
       </div>
+      
       <div class="cart-wrap">
-        <button class="iconbtn" aria-label="Cart">
+        <a href="{% url 'ver_carrinho' %}" class="iconbtn" aria-label="Cart">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
             <path d="M6 6h15l-1.5 9h-12L5 3H2" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             <circle cx="9" cy="20" r="1.7" fill="#111"/><circle cx="18" cy="20" r="1.7" fill="#111"/>
           </svg>
-        </button>
+        </a>
         <span class="badge-cart" aria-label="Items in cart">0</span>
       </div>
     </header>
@@ -49,21 +51,21 @@
     <div class="fade-wrap">
       <div class="hscroll" aria-label="Popular items">
         <article class="popular-card">
-          <img src="/imagens/xequemate.webp" alt="Xeque Mate">
+          <img src="{% static 'imagens/xequemate.webp' %}" alt="Xeque Mate">
           <div class="popular-info">
             <div class="popular-title">Xeque Mate</div>
             <div class="popular-price">R$18</div>
           </div>
         </article>
         <article class="popular-card">
-          <img src="/imagens/caipirinha de limão.jpeg" alt="Caipirinha">
+          <img src="{% static 'imagens/caipirinha de limão.jpeg' %}" alt="Caipirinha">
           <div class="popular-info">
             <div class="popular-title">Caipirinha</div>
             <div class="popular-price">R$25</div>
           </div>
         </article>
         <article class="popular-card">
-          <img src="/imagens/espetinho.jpg" alt="Espetinho">
+          <img src="{% static 'imagens/espetinho.jpg' %}" alt="Espetinho">
           <div class="popular-info">
             <div class="popular-title">Espetinho</div>
             <div class="popular-price">R$11</div>
@@ -84,7 +86,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="/SCREENS/js/cardapio.js"></script>
+  <script src="{% static 'js/cardapio.js' %}"></script>
 
 </body>
 </html>

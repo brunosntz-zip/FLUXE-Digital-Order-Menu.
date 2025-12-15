@@ -65,3 +65,9 @@ def limpar_carrinho(request):
     if 'carrinho' in request.session:
         del request.session['carrinho']
     return redirect('ver_carrinho')
+
+def home(request):
+    return render(request, 'home.html')
+
+def detalhes(request):
+    return render(request, 'detalhes.html')
