@@ -3,28 +3,33 @@ from django.urls import path, include
 from rest_framework import routers
 from cardapio.views import (
     CategoriaProdutoViewSet, 
+    ProdutoViewSet,          # <--- Faltava importar isso
+    ProdutoPopularViewSet,   # <--- Faltava importar isso
     adicionar_carrinho, 
     ver_carrinho, 
     remover_carrinho, 
     limpar_carrinho,
-    home,      # <--- Importei a home
-    detalhes   # <--- Importei detalhes
+    home,      
+    detalhes   
 )
 
+# Configuração da API
 router = routers.DefaultRouter()
 router.register(r'categorias', CategoriaProdutoViewSet)
+router.register(r'produtos', ProdutoViewSet)
+router.register(r'produtos/populares', ProdutoPopularViewSet, basename='produto-popular')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    
+    # API
     path('api/', include(router.urls)),
     
-    # --- ROTA DA HOME (O Pulo do Gato) ---
-    path('', home, name='home'), 
-    
-    # Rota de Detalhes
+    # PAGINAS HTML
+    path('', home, name='home'),             # <--- ESSA É A PRINCIPAL
     path('detalhes/', detalhes, name='detalhes'),
 
-    # Rotas do Carrinho
+    # CARRINHO
     path('carrinho/', ver_carrinho, name='ver_carrinho'),
     path('carrinho/add/<str:produto_id>/', adicionar_carrinho, name='add_carrinho'),
     path('carrinho/remove/<str:produto_id>/', remover_carrinho, name='remove_carrinho'),

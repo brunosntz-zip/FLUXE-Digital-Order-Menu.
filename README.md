@@ -2,7 +2,7 @@
 
 ![Status do Projeto](https://img.shields.io/badge/status-em_desenvolvimento-yellow)
 ![Tecnologia](https://img.shields.io/badge/backend-Supabase-green)
-![Tecnologia](https://img.shields.io/badge/database-PostgreSQL-blue)
+![Tecnologia](https://img.shields.io/badge/database-PostgreSQL-lightblue)
 ![Tecnologia](https://img.shields.io/badge/frontend-JS-orange)
 
 [cite_start]Projeto Integrador (P.I.) do 4º semestre de Análise e Desenvolvimento de Sistemas[cite: 5]. [cite_start]Este projeto é um MVP (Produto Mínimo Viável) de uma plataforma de gestão de comandas e autoatendimento para bares, restaurantes e casas de show[cite: 3].
@@ -46,9 +46,3 @@ O backend é 100% gerenciado pelo Supabase. Para o frontend funcionar, o Supabas
 2.  **Banco de Dados:** As tabelas do PostgreSQL devem ser criadas usando o script (`script-postgres.sql`) presente neste repositório.
 3.  **Segurança (RLS):** As Políticas de "Row Level Security" precisam estar ativas para permitir a leitura pública (`SELECT`) das tabelas `produto`, `categoria_produto`, etc., e a escrita (`INSERT`) nas tabelas `cliente`, `pedido`, etc..
 4.  **Storage:** As fotos dos produtos devem ser enviadas para um Bucket público no Supabase Storage.
-
-## 6. Autores (A Equipe)
-* **Frontend:** Bruno e Isa
-* **Backend & Infra:** Bruno e Gabriel
-* **Banco de Dados:** Marcus, Marcos e Bruno
-* **QA & Documentação:** Bruno
