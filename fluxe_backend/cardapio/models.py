@@ -110,6 +110,7 @@ class Produto(models.Model):
     preco_atual = models.DecimalField(max_digits=10, decimal_places=2)
     sku = models.CharField(max_length=60, blank=True, null=True)
     foto_url = models.CharField(max_length=255, blank=True, null=True)
+    eh_popular = models.BooleanField(default=False, verbose_name="É Queridinho?")
     ordem_exibicao = models.IntegerField(blank=True, null=True)
     ativo = models.BooleanField(blank=True, null=True)
     criado_em = models.DateTimeField(blank=True, null=True)

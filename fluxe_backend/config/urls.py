@@ -17,7 +17,7 @@ from cardapio.views import (
 router = routers.DefaultRouter()
 router.register(r'categorias', CategoriaProdutoViewSet)
 router.register(r'produtos', ProdutoViewSet)
-router.register(r'produtos/populares', ProdutoPopularViewSet, basename='produto-popular')
+router.register(r'populares', ProdutoPopularViewSet, basename='produto-popular')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,7 +26,7 @@ urlpatterns = [
     path('api/', include(router.urls)),
     
     # PAGINAS HTML
-    path('', home, name='home'),             # <--- ESSA É A PRINCIPAL
+    path('', home, name='home'),
     path('detalhes/', detalhes, name='detalhes'),
 
     # CARRINHO
