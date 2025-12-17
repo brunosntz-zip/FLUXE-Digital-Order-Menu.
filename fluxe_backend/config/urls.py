@@ -3,8 +3,8 @@ from django.urls import path, include
 from rest_framework import routers
 from cardapio.views import (
     CategoriaProdutoViewSet, 
-    ProdutoViewSet,          # <--- Faltava importar isso
-    ProdutoPopularViewSet,   # <--- Faltava importar isso
+    ProdutoViewSet,
+    ProdutoPopularViewSet,
     adicionar_carrinho, 
     ver_carrinho, 
     remover_carrinho, 
@@ -27,7 +27,9 @@ urlpatterns = [
     
     # PAGINAS HTML
     path('', home, name='home'),
-    path('detalhes/', detalhes, name='detalhes'),
+    
+    # 👇 AQUI ESTAVA O ERRO! Adicionei <str:produto_id> pra ele aceitar o código do produto
+    path('detalhes/<str:produto_id>/', detalhes, name='detalhes'),
 
     # CARRINHO
     path('carrinho/', ver_carrinho, name='ver_carrinho'),

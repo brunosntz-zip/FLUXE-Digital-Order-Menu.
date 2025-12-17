@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets
-# IMPORTS IMPORTANTES AQUI 👇
+from django.views.decorators.http import require_http_methods
 from .models import CategoriaProduto, Produto, Restaurante 
 from .serializers import CategoriaProdutoSerializer, ProdutoSerializer
+from django.http import JsonResponse
 
-# --- API REST (Mantém igual) ---
+# API REST 
 
 class CategoriaProdutoViewSet(viewsets.ModelViewSet):
     queryset = CategoriaProduto.objects.all().order_by('ordem_exibicao')
@@ -85,16 +86,43 @@ def ver_carrinho(request):
     }
     return render(request, 'carrinho.html', context)
 
+@require_http_methods(["GET", "POST"]) # Aceita tanto clicar no link quanto enviar formulário
 def adicionar_carrinho(request, produto_id):
     carrinho = request.session.get('carrinho', {})
     produto_id = str(produto_id)
-    if produto_id in carrinho:
-        carrinho[produto_id] += 1
+    
+    # (Lógica de adicionar mantém igual...)
+    if request.method == 'POST':
+        quantidade_form = int(request.POST.get('quantidade', 1))
+        if produto_id in carrinho:
+            carrinho[produto_id] += quantidade_form
+        else:
+            carrinho[produto_id] = quantidade_form
     else:
-        carrinho[produto_id] = 1
+        # GET (Link da Home)
+        if produto_id in carrinho:
+            carrinho[produto_id] += 1
+        else:
+            carrinho[produto_id] = 1
+        
     request.session['carrinho'] = carrinho
     request.session.modified = True
-    return redirect('ver_carrinho')
+    
+    # --- NOVIDADE AQUI 👇 ---
+    # Calcula total de itens agora
+    qtd_total = sum(carrinho.values())
+
+    # Se o pedido veio com o carimbo "AJAX" (X-Requested-With), responde JSON
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'qtd': qtd_total, 'status': 'sucesso'})
+    # ------------------------
+
+    # Fallback pro jeito antigo (para o formulário de detalhes funcionar normal)
+    next_url = request.GET.get('next') or request.POST.get('next')
+    if next_url:
+        return redirect(next_url)
+    
+    return redirect('ver_carrinho') 
 
 def remover_carrinho(request, produto_id):
     carrinho = request.session.get('carrinho', {})

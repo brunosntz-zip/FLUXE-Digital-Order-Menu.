@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const API_POPULARES = '/api/populares/';
 
     // Elementos da tela
-    const containerCardapio = document.getElementById('cardapio-completo'); // <--- MUDOU AQUI
+    const containerCardapio = document.getElementById('cardapio-completo'); 
     const inputBusca = document.querySelector('.search input'); 
 
     // --- ELEMENTOS DO MENU LATERAL ---
@@ -30,15 +30,55 @@ document.addEventListener("DOMContentLoaded", () => {
     if(overlay) overlay.addEventListener('click', fecharMenu);
 
     // formatação do "." pra "," no valor decimal
-   function formatarMoeda(valor) {
-        // Converte pra número (caso venha string) e formata PT-BR
+    function formatarMoeda(valor) {
         return parseFloat(valor).toLocaleString('pt-BR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
     }
 
-    // --- LÓGICA NOVA: RENDERIZAR TUDO (SCROLL INFINITO) ---
+    // --- NOVA FUNÇÃO AJAX (ADICIONAR RAPIDINHO) ---
+    // Fica aqui, logo depois das funções básicas e antes de renderizar
+    async function adicionarRapidinho(event, produtoId) {
+        // 1. Para tudo! Não deixa o link carregar a página
+        event.preventDefault();
+        event.stopPropagation(); // Não abre os detalhes do card
+
+        const btn = event.currentTarget; // O botão que foi clicado
+        
+        // Efeito visual simples (botão dá uma encolhidinha)
+        btn.style.transform = "scale(0.9)";
+        setTimeout(() => btn.style.transform = "scale(1)", 150);
+
+        try {
+            // 2. Chama o Django no sigilo
+            const response = await fetch(`/carrinho/add/${produtoId}/`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest' // Senha pro Django saber q é AJAX
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                
+                // 3. Atualiza a bolinha vermelha lá em cima
+                const badge = document.querySelector('.badge-cart');
+                if (badge) {
+                    badge.textContent = data.qtd;
+                    // Efeitinho de "pulo" na bolinha
+                    badge.style.transform = "scale(1.5)";
+                    setTimeout(() => badge.style.transform = "scale(1)", 200);
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao adicionar:', error);
+        }
+    }
+    // IMPORTANTE: Isso aqui libera a função pra ser usada no HTML
+    window.adicionarRapidinho = adicionarRapidinho;
+
+
+    // --- LÓGICA DE RENDERIZAR TUDO (SCROLL INFINITO) ---
 
     function renderizarTudo(termoBusca = '') {
         if (!containerCardapio) return;
@@ -58,32 +98,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 (p.descricao && p.descricao.toLowerCase().includes(termoBusca))
             );
 
-            // Se não sobrou nenhum produto nessa categoria (seja pq nao tem, ou pq a busca filtrou), pula ela
+            // Se não sobrou nenhum produto nessa categoria, pula ela
             if (produtosVisiveis.length === 0) return;
 
             encontrouAlgumProduto = true;
 
-            // Cria o HTML do Título da Categoria
-            // Adicionamos um ID na section pra gente conseguir rolar até ela depois (ex: id="cat-15")
+            // Cria o HTML do Título da Categoria e dos Cards
             const secaoHTML = `
                 <div id="cat-${cat.id}" class="categoria-wrapper" style="scroll-margin-top: 140px;"> 
                     <h2 class="section-title">${cat.nome}</h2>
                     <section class="menu-grid">
                         ${produtosVisiveis.map(produto => `
-                            <article class="card">
-                                <a href="/detalhes/${produto.id}/" style="display:contents; color:inherit; text-decoration:none;">
-                                    <img class="thumb" src="${produto.foto_url}" alt="${produto.nome}" onerror="this.src='/static/imagens/xequemate.webp'">
-                                </a>
+                            <article class="card" onclick="window.location.href='/detalhes/${produto.id}/'" style="cursor: pointer;">
+                                
+                                <img class="thumb" src="${produto.foto_url}" alt="${produto.nome}" onerror="this.src='/static/imagens/xequemate.webp'">
+                                
                                 <div class="meta">
                                     <div class="name">${produto.nome}</div>
                                     <div class="desc">${produto.descricao || ''}</div>
                                     <div class="price">R$ ${formatarMoeda(produto.preco_atual)}</div>
                                 </div>
-                                <a href="/carrinho/add/${produto.id}/" class="add" aria-label="Add ${produto.nome}">
+
+                                <button class="add" aria-label="Add ${produto.nome}" onclick="adicionarRapidinho(event, '${produto.id}')">
                                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                                         <path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
                                     </svg>
-                                </a>
+                                </button>
+
                             </article>
                         `).join('')}
                     </section>
@@ -107,13 +148,11 @@ document.addEventListener("DOMContentLoaded", () => {
     function rolarParaCategoria(categoriaId) {
         const elemento = document.getElementById(`cat-${categoriaId}`);
         if (elemento) {
-            // O scrollIntoView as vezes fica coberto pelo header fixo. 
-            // O style="scroll-margin-top: 140px;" que coloquei no HTML acima ajuda nisso.
             elemento.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 
-    // Função Principal
+    // Função Principal (Busca API)
     async function carregarDados() {
         try {
             console.log("Buscando dados do Django...");
@@ -128,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
             todosOsProdutos = await resProd.json();
             const produtosPopulares = await resPop.json();
 
-            // 1. Renderiza os Populares (Queridinhos) - Igual antes
+            // 1. Renderiza os Populares (Queridinhos)
             const containerPopulares = document.querySelector('.hscroll');
             if (containerPopulares) {
                 containerPopulares.innerHTML = '';
@@ -150,10 +189,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            // 2. Renderiza o Cardápio Completo (NOVO)
+            // 2. Renderiza o Cardápio Completo
             renderizarTudo();
 
-            // 3. Prepara as Abas e o Menu Lateral para ROLAR a página
+            // 3. Prepara as Abas
             const tabsContainer = document.querySelector('.tabs');
             
             if (tabsContainer) tabsContainer.innerHTML = ''; 
@@ -163,21 +202,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 todasCategorias.forEach((cat, index) => {
                     // --- A. Aba Superior (Tabs) ---
                     const btn = document.createElement('button');
-                    btn.className = `tab ${index === 0 ? 'active' : ''}`; // Deixa a primeira ativa visualmente, mas logica muda dps
+                    btn.className = `tab ${index === 0 ? 'active' : ''}`; 
                     btn.textContent = cat.nome;
                     
                     btn.addEventListener('click', () => {
-                        // Limpa a busca pra mostrar tudo
                         if(inputBusca.value !== '') {
                             inputBusca.value = '';
                             renderizarTudo(); 
                         }
-
-                        // Atualiza visual dos botoes
                         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                         btn.classList.add('active');
-                        
-                        // ROLA ATÉ A CATEGORIA
                         rolarParaCategoria(cat.id);
                     });
 
@@ -217,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (inputBusca) {
                 inputBusca.addEventListener('input', (e) => {
                     const termo = e.target.value;
-                    renderizarTudo(termo); // Redesenha a tela filtrando tudo
+                    renderizarTudo(termo); 
                 });
             }
 
