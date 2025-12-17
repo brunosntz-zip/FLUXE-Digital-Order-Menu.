@@ -10,11 +10,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const API_POPULARES = '/api/populares/';
 
     // Elementos da tela
-    const menuGrid = document.querySelector('.menu-grid');
-    const tituloCategoria = document.querySelector('#titulo-categoria');
+    const containerCardapio = document.getElementById('cardapio-completo'); // <--- MUDOU AQUI
     const inputBusca = document.querySelector('.search input'); 
 
-    // --- ELEMENTOS DO MENU LATERAL (NOVO) ---
+    // --- ELEMENTOS DO MENU LATERAL ---
     const btnAbrir = document.getElementById('btn-menu-abrir');
     const btnFechar = document.getElementById('btn-menu-fechar');
     const overlay = document.getElementById('menu-overlay');
@@ -22,58 +21,87 @@ document.addEventListener("DOMContentLoaded", () => {
     const sidebarCategorias = document.getElementById('sidebar-categorias-container');
     const linkQueridinhosSidebar = document.getElementById('link-queridinhos-sidebar');
 
-    // --- FUNÇÕES DE CONTROLE DO MENU (NOVO) ---
-    function abrirMenu() {
-        document.body.classList.add('menu-open', 'body-no-scroll');
-    }
+    // --- FUNÇÕES DE CONTROLE DO MENU ---
+    function abrirMenu() { document.body.classList.add('menu-open', 'body-no-scroll'); }
+    function fecharMenu() { document.body.classList.remove('menu-open', 'body-no-scroll'); }
 
-    function fecharMenu() {
-        document.body.classList.remove('menu-open', 'body-no-scroll');
-    }
-
-    // Eventos do Menu
     if(btnAbrir) btnAbrir.addEventListener('click', abrirMenu);
     if(btnFechar) btnFechar.addEventListener('click', fecharMenu);
     if(overlay) overlay.addEventListener('click', fecharMenu);
 
-    // --- LÓGICA DE RENDERIZAÇÃO ---
+    // --- LÓGICA NOVA: RENDERIZAR TUDO (SCROLL INFINITO) ---
 
-    function renderizarLista(listaDeProdutos, titulo = null) {
-        if (!menuGrid) return;
-        menuGrid.innerHTML = ''; 
+    function renderizarTudo(termoBusca = '') {
+        if (!containerCardapio) return;
+        containerCardapio.innerHTML = ''; // Limpa tudo pra reconstruir
 
-        if (titulo) tituloCategoria.textContent = titulo;
+        let encontrouAlgumProduto = false;
+        termoBusca = termoBusca.toLowerCase();
 
-        if (listaDeProdutos.length === 0) {
-            menuGrid.innerHTML = '<p class="muted" style="padding:10px; text-align:center;">Nenhum produto encontrado.</p>';
-            return;
-        }
+        // Para cada categoria, cria um bloco visual
+        todasCategorias.forEach(cat => {
+            // Filtra os produtos dessa categoria
+            const produtosDaCategoria = todosOsProdutos.filter(p => String(p.categoria) === String(cat.id));
 
-        listaDeProdutos.forEach(produto => {
-            const cardHTML = `
-            <article class="card">
-                <img class="thumb" src="${produto.foto_url}" alt="${produto.nome}" onerror="this.src='/static/imagens/xequemate.webp'">
-                <div class="meta">
-                <div class="name">${produto.nome}</div>
-                <div class="desc">${produto.descricao || ''}</div>
-                <div class="price">R$ ${produto.preco_atual}</div>
+            // Se tem busca, filtra mais ainda
+            const produtosVisiveis = produtosDaCategoria.filter(p => 
+                p.nome.toLowerCase().includes(termoBusca) || 
+                (p.descricao && p.descricao.toLowerCase().includes(termoBusca))
+            );
+
+            // Se não sobrou nenhum produto nessa categoria (seja pq nao tem, ou pq a busca filtrou), pula ela
+            if (produtosVisiveis.length === 0) return;
+
+            encontrouAlgumProduto = true;
+
+            // Cria o HTML do Título da Categoria
+            // Adicionamos um ID na section pra gente conseguir rolar até ela depois (ex: id="cat-15")
+            const secaoHTML = `
+                <div id="cat-${cat.id}" class="categoria-wrapper" style="scroll-margin-top: 140px;"> 
+                    <h2 class="section-title">${cat.nome}</h2>
+                    <section class="menu-grid">
+                        ${produtosVisiveis.map(produto => `
+                            <article class="card">
+                                <a href="/detalhes/${produto.id}/" style="display:contents; color:inherit; text-decoration:none;">
+                                    <img class="thumb" src="${produto.foto_url}" alt="${produto.nome}" onerror="this.src='/static/imagens/xequemate.webp'">
+                                </a>
+                                <div class="meta">
+                                    <div class="name">${produto.nome}</div>
+                                    <div class="desc">${produto.descricao || ''}</div>
+                                    <div class="price">R$ ${produto.preco_atual}</div>
+                                </div>
+                                <a href="/carrinho/add/${produto.id}/" class="add" aria-label="Add ${produto.nome}">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                                        <path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </a>
+                            </article>
+                        `).join('')}
+                    </section>
                 </div>
-                <a href="/carrinho/add/${produto.id}/" class="add" aria-label="Add ${produto.nome}">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-                </a>
-            </article>
             `;
-            menuGrid.insertAdjacentHTML('beforeend', cardHTML);
+            
+            containerCardapio.insertAdjacentHTML('beforeend', secaoHTML);
         });
+
+        // Se digitou algo que não existe em lugar nenhum
+        if (!encontrouAlgumProduto) {
+            containerCardapio.innerHTML = `
+                <div style="text-align:center; padding: 40px; color:#666;">
+                    <p>Nenhum produto encontrado para "<strong>${inputBusca.value}</strong>".</p>
+                </div>
+            `;
+        }
     }
 
-    function carregarCategoriaEspecifica(categoriaId) {
-        const produtosFiltrados = todosOsProdutos.filter(p => String(p.categoria) === String(categoriaId));
-        const cat = todasCategorias.find(c => String(c.id) === String(categoriaId));
-        const nomeTitulo = cat ? cat.nome : 'Produtos';
-        renderizarLista(produtosFiltrados, nomeTitulo);
+    // Função de Rolagem Suave
+    function rolarParaCategoria(categoriaId) {
+        const elemento = document.getElementById(`cat-${categoriaId}`);
+        if (elemento) {
+            // O scrollIntoView as vezes fica coberto pelo header fixo. 
+            // O style="scroll-margin-top: 140px;" que coloquei no HTML acima ajuda nisso.
+            elemento.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     }
 
     // Função Principal
@@ -91,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
             todosOsProdutos = await resProd.json();
             const produtosPopulares = await resPop.json();
 
-            // 1. Queridinhos
+            // 1. Renderiza os Populares (Queridinhos) - Igual antes
             const containerPopulares = document.querySelector('.hscroll');
             if (containerPopulares) {
                 containerPopulares.innerHTML = '';
@@ -100,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 } else {
                     produtosPopulares.forEach(prod => {
                         const html = `
-                        <article class="popular-card" onclick="window.location.href='/detalhes/'">
+                        <article class="popular-card" onclick="window.location.href='/detalhes/${prod.id}/'">
                             <img src="${prod.foto_url}" alt="${prod.nome}" onerror="this.src='/static/imagens/xequemate.webp'">
                             <div class="popular-info">
                                 <div class="popular-title">${prod.nome}</div>
@@ -113,58 +141,61 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            // 2. Abas de Categoria e MENU LATERAL (NOVO)
+            // 2. Renderiza o Cardápio Completo (NOVO)
+            renderizarTudo();
+
+            // 3. Prepara as Abas e o Menu Lateral para ROLAR a página
             const tabsContainer = document.querySelector('.tabs');
             
-            // Limpa containers
             if (tabsContainer) tabsContainer.innerHTML = ''; 
             if (sidebarCategorias) sidebarCategorias.innerHTML = '';
 
             if (todasCategorias.length > 0) {
                 todasCategorias.forEach((cat, index) => {
-                    // --- A. Cria a Aba Superior ---
+                    // --- A. Aba Superior (Tabs) ---
                     const btn = document.createElement('button');
-                    btn.className = `tab ${index === 0 ? 'active' : ''}`;
+                    btn.className = `tab ${index === 0 ? 'active' : ''}`; // Deixa a primeira ativa visualmente, mas logica muda dps
                     btn.textContent = cat.nome;
+                    
                     btn.addEventListener('click', () => {
-                        if(inputBusca) inputBusca.value = '';
+                        // Limpa a busca pra mostrar tudo
+                        if(inputBusca.value !== '') {
+                            inputBusca.value = '';
+                            renderizarTudo(); 
+                        }
+
+                        // Atualiza visual dos botoes
                         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                         btn.classList.add('active');
-                        carregarCategoriaEspecifica(cat.id);
+                        
+                        // ROLA ATÉ A CATEGORIA
+                        rolarParaCategoria(cat.id);
                     });
+
                     if (tabsContainer) tabsContainer.appendChild(btn);
 
-                    // --- B. Cria o Link no Menu Lateral (NOVO) ---
+                    // --- B. Menu Lateral ---
                     if (sidebarCategorias) {
                         const linkMenu = document.createElement('a');
                         linkMenu.href = '#';
                         linkMenu.className = 'sidebar-link';
                         linkMenu.textContent = cat.nome;
                         linkMenu.addEventListener('click', (e) => {
-                            e.preventDefault(); // Não recarrega a página
-                            
-                            // Fecha o menu
+                            e.preventDefault();
                             fecharMenu();
                             
-                            // Simula o clique na aba correta
-                            if(inputBusca) inputBusca.value = '';
-                            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                            // Acha a aba correspondente e ativa
-                            const abaCorrespondente = document.querySelectorAll('.tab')[index];
-                            if(abaCorrespondente) abaCorrespondente.classList.add('active');
-                            
-                            // Carrega os produtos
-                            carregarCategoriaEspecifica(cat.id);
+                            if(inputBusca.value !== '') {
+                                inputBusca.value = '';
+                                renderizarTudo(); 
+                            }
+                            rolarParaCategoria(cat.id);
                         });
                         sidebarCategorias.appendChild(linkMenu);
                     }
                 });
-
-                // Carrega primeira categoria
-                carregarCategoriaEspecifica(todasCategorias[0].id);
             }
 
-            // Link "Os Queridinhos" no Sidebar (Rola pro topo)
+            // Link "Os Queridinhos" no Sidebar
             if (linkQueridinhosSidebar) {
                 linkQueridinhosSidebar.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -173,25 +204,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
 
-            // Busca
+            // 4. Busca em Tempo Real 
             if (inputBusca) {
                 inputBusca.addEventListener('input', (e) => {
-                    const termo = e.target.value.toLowerCase();
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-
-                    if (termo === '') {
-                        if (todasCategorias.length > 0) {
-                            const primeiraAba = document.querySelector('.tab');
-                            if(primeiraAba) primeiraAba.classList.add('active');
-                            carregarCategoriaEspecifica(todasCategorias[0].id);
-                        }
-                    } else {
-                        const resultados = todosOsProdutos.filter(p => 
-                            p.nome.toLowerCase().includes(termo) || 
-                            (p.descricao && p.descricao.toLowerCase().includes(termo))
-                        );
-                        renderizarLista(resultados, `Resultados para "${e.target.value}"`);
-                    }
+                    const termo = e.target.value;
+                    renderizarTudo(termo); // Redesenha a tela filtrando tudo
                 });
             }
 

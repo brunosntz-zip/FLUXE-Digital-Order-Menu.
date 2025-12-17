@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets
-from .models import CategoriaProduto, Produto
+from .models import CategoriaProduto, Produto, Restaurante
 from .serializers import CategoriaProdutoSerializer, ProdutoSerializer
 
 # --- API REST ---
@@ -24,6 +24,10 @@ def get_qtd_carrinho(session):
     return sum(carrinho.values())
 
 # --- VIEWS (Páginas HTML) ---
+
+def home(request):
+    #Pega o primeiro restaurante la do BD
+    restaurante = Restaurante.objects.filter(ativo=True).first()
 
 def home(request):
     # Calcula a quantidade para mostrar na bolinha vermelha
