@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if(btnFechar) btnFechar.addEventListener('click', fecharMenu);
     if(overlay) overlay.addEventListener('click', fecharMenu);
 
-    // formatação do "." pra "," no valor decimal
+    // Formatação de Moeda (R$ 20,00)
     function formatarMoeda(valor) {
         return parseFloat(valor).toLocaleString('pt-BR', {
             minimumFractionDigits: 2,
@@ -38,34 +38,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // --- NOVA FUNÇÃO AJAX (ADICIONAR RAPIDINHO) ---
-    // Fica aqui, logo depois das funções básicas e antes de renderizar
     async function adicionarRapidinho(event, produtoId) {
-        // 1. Para tudo! Não deixa o link carregar a página
         event.preventDefault();
         event.stopPropagation(); // Não abre os detalhes do card
 
-        const btn = event.currentTarget; // O botão que foi clicado
+        const btn = event.currentTarget;
         
-        // Efeito visual simples (botão dá uma encolhidinha)
+        // Efeito visual (click)
         btn.style.transform = "scale(0.9)";
         setTimeout(() => btn.style.transform = "scale(1)", 150);
 
         try {
-            // 2. Chama o Django no sigilo
+            // Chama o Django no sigilo
             const response = await fetch(`/carrinho/add/${produtoId}/`, {
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest' // Senha pro Django saber q é AJAX
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             });
 
             if (response.ok) {
                 const data = await response.json();
                 
-                // 3. Atualiza a bolinha vermelha lá em cima
+                // Atualiza a bolinha vermelha
                 const badge = document.querySelector('.badge-cart');
                 if (badge) {
                     badge.textContent = data.qtd;
-                    // Efeitinho de "pulo" na bolinha
                     badge.style.transform = "scale(1.5)";
                     setTimeout(() => badge.style.transform = "scale(1)", 200);
                 }
@@ -74,15 +71,14 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error('Erro ao adicionar:', error);
         }
     }
-    // IMPORTANTE: Isso aqui libera a função pra ser usada no HTML
+    // Libera a função para o HTML usar no onclick
     window.adicionarRapidinho = adicionarRapidinho;
 
 
-    // --- LÓGICA DE RENDERIZAR TUDO (SCROLL INFINITO) ---
-
+    // --- LÓGICA DE RENDERIZAR TUDO (LISTAGEM DOS PRODUTOS) ---
     function renderizarTudo(termoBusca = '') {
         if (!containerCardapio) return;
-        containerCardapio.innerHTML = ''; // Limpa tudo pra reconstruir
+        containerCardapio.innerHTML = ''; 
 
         let encontrouAlgumProduto = false;
         termoBusca = termoBusca.toLowerCase();
@@ -92,18 +88,18 @@ document.addEventListener("DOMContentLoaded", () => {
             // Filtra os produtos dessa categoria
             const produtosDaCategoria = todosOsProdutos.filter(p => String(p.categoria) === String(cat.id));
 
-            // Se tem busca, filtra mais ainda
+            // Filtra pela busca (se houver)
             const produtosVisiveis = produtosDaCategoria.filter(p => 
                 p.nome.toLowerCase().includes(termoBusca) || 
                 (p.descricao && p.descricao.toLowerCase().includes(termoBusca))
             );
 
-            // Se não sobrou nenhum produto nessa categoria, pula ela
+            // Se não tiver produtos visíveis, não desenha essa categoria
             if (produtosVisiveis.length === 0) return;
 
             encontrouAlgumProduto = true;
 
-            // Cria o HTML do Título da Categoria e dos Cards
+            // HTML da Seção (Título + Grid de Cards)
             const secaoHTML = `
                 <div id="cat-${cat.id}" class="categoria-wrapper" style="scroll-margin-top: 140px;"> 
                     <h2 class="section-title">${cat.nome}</h2>
@@ -134,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
             containerCardapio.insertAdjacentHTML('beforeend', secaoHTML);
         });
 
-        // Se digitou algo que não existe em lugar nenhum
+        // Feedback de "Não encontrado"
         if (!encontrouAlgumProduto) {
             containerCardapio.innerHTML = `
                 <div style="text-align:center; padding: 40px; color:#666;">
@@ -152,10 +148,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Função Principal (Busca API)
+    // --- FUNÇÃO PRINCIPAL (CARREGAR DADOS + ABAS) ---
+    // Aqui está a correção principal para evitar tela branca e categorias vazias
     async function carregarDados() {
         try {
-            console.log("Buscando dados do Django...");
+            console.log("🚀 Iniciando busca de dados...");
             
             const [resCat, resProd, resPop] = await Promise.all([
                 fetch(API_CATEGORIAS),
@@ -163,6 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 fetch(API_POPULARES)
             ]);
 
+            // Carrega TUDO (sem filtrar agressivamente aqui)
             todasCategorias = await resCat.json();
             todosOsProdutos = await resProd.json();
             const produtosPopulares = await resPop.json();
@@ -189,20 +187,37 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            // 2. Renderiza o Cardápio Completo
+            // 2. Renderiza o Cardápio (Produtos)
             renderizarTudo();
 
-            // 3. Prepara as Abas
+            // 3. Monta as Abas (Tabs) - VERIFICANDO SE A CATEGORIA TEM PRODUTO
             const tabsContainer = document.querySelector('.tabs');
             
             if (tabsContainer) tabsContainer.innerHTML = ''; 
             if (sidebarCategorias) sidebarCategorias.innerHTML = '';
 
             if (todasCategorias.length > 0) {
-                todasCategorias.forEach((cat, index) => {
-                    // --- A. Aba Superior (Tabs) ---
+                let primeiraCategoriaAtiva = false; // Controle para ativar a primeira aba válida
+
+                todasCategorias.forEach((cat) => {
+                    
+                    // 🔍 CHECK: Essa categoria tem produto?
+                    const temProduto = todosOsProdutos.some(p => String(p.categoria) === String(cat.id));
+                    
+                    // Se não tiver produto, PULA (Não cria aba, nem link no menu)
+                    if (!temProduto) return;
+
+                    // --- A. Aba Superior ---
                     const btn = document.createElement('button');
-                    btn.className = `tab ${index === 0 ? 'active' : ''}`; 
+                    
+                    // Se for a primeira válida, marca como ativa
+                    if (!primeiraCategoriaAtiva) {
+                        btn.className = 'tab active';
+                        primeiraCategoriaAtiva = true;
+                    } else {
+                        btn.className = 'tab';
+                    }
+
                     btn.textContent = cat.nome;
                     
                     btn.addEventListener('click', () => {
@@ -226,7 +241,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         linkMenu.addEventListener('click', (e) => {
                             e.preventDefault();
                             fecharMenu();
-                            
                             if(inputBusca.value !== '') {
                                 inputBusca.value = '';
                                 renderizarTudo(); 
@@ -238,16 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
 
-            // Link "Os Queridinhos" no Sidebar
-            if (linkQueridinhosSidebar) {
-                linkQueridinhosSidebar.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    fecharMenu();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                });
-            }
-
-            // 4. Busca em Tempo Real 
+            // 4. Ativa a Busca
             if (inputBusca) {
                 inputBusca.addEventListener('input', (e) => {
                     const termo = e.target.value;
@@ -256,7 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
         } catch (error) {
-            console.error("Erro ao carregar API:", error);
+            console.error("❌ Erro fatal no JS:", error);
         }
     }
 
