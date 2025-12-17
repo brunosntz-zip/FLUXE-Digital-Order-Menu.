@@ -29,6 +29,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if(btnFechar) btnFechar.addEventListener('click', fecharMenu);
     if(overlay) overlay.addEventListener('click', fecharMenu);
 
+    // formatação do "." pra "," no valor decimal
+   function formatarMoeda(valor) {
+        // Converte pra número (caso venha string) e formata PT-BR
+        return parseFloat(valor).toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
     // --- LÓGICA NOVA: RENDERIZAR TUDO (SCROLL INFINITO) ---
 
     function renderizarTudo(termoBusca = '') {
@@ -68,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <div class="meta">
                                     <div class="name">${produto.nome}</div>
                                     <div class="desc">${produto.descricao || ''}</div>
-                                    <div class="price">R$ ${produto.preco_atual}</div>
+                                    <div class="price">R$ ${formatarMoeda(produto.preco_atual)}</div>
                                 </div>
                                 <a href="/carrinho/add/${produto.id}/" class="add" aria-label="Add ${produto.nome}">
                                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -132,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <img src="${prod.foto_url}" alt="${prod.nome}" onerror="this.src='/static/imagens/xequemate.webp'">
                             <div class="popular-info">
                                 <div class="popular-title">${prod.nome}</div>
-                                <div class="popular-price">R$ ${prod.preco_atual}</div>
+                                <div class="popular-price">R$ ${formatarMoeda(prod.preco_atual)}</div>
                             </div>
                         </article>
                         `;

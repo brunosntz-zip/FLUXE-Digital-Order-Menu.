@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets
-from .models import CategoriaProduto, Produto, Restaurante
+# IMPORTS IMPORTANTES AQUI 👇
+from .models import CategoriaProduto, Produto, Restaurante 
 from .serializers import CategoriaProdutoSerializer, ProdutoSerializer
 
-# --- API REST ---
+# --- API REST (Mantém igual) ---
 
 class CategoriaProdutoViewSet(viewsets.ModelViewSet):
     queryset = CategoriaProduto.objects.all().order_by('ordem_exibicao')
@@ -17,27 +18,47 @@ class ProdutoPopularViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Produto.objects.filter(ativo=True, eh_popular=True)
     serializer_class = ProdutoSerializer
 
-# --- FUNÇÃO AUXILIAR (Conta quantos itens tem no carrinho) ---
+# --- FUNÇÃO AUXILIAR ---
 def get_qtd_carrinho(session):
     carrinho = session.get('carrinho', {})
-    # Soma todas as quantidades (ex: 2 cervejas + 1 espetinho = 3)
     return sum(carrinho.values())
 
 # --- VIEWS (Páginas HTML) ---
 
 def home(request):
-    #Pega o primeiro restaurante la do BD
-    restaurante = Restaurante.objects.filter(ativo=True).first()
+    # ID OFICIAL DO BAR (Copiado do seu arquivo de texto)
+    ID_OFICIAL = 'b5bcffc5-90c7-4e76-bd19-5c56dbf31b3d'
+    
+    # 1. Tenta buscar pelo ID exato
+    restaurante = Restaurante.objects.filter(id=ID_OFICIAL).first()
 
-def home(request):
-    # Calcula a quantidade para mostrar na bolinha vermelha
-    qtd = get_qtd_carrinho(request.session)
-    return render(request, 'home.html', {'qtd_carrinho': qtd})
+    # --- DEBUG NO TERMINAL (Pra gente ver se funcionou) ---
+    if not restaurante:
+        print(f"\n⚠️ ALERTA: Não achei o restaurante pelo ID {ID_OFICIAL}!")
+        print("🔍 Tentando pegar qualquer um ativo como fallback...")
+        restaurante = Restaurante.objects.filter(ativo=True).first()
+        
+        if restaurante:
+            print(f"✅ Fallback funcionou! Usando: {restaurante.nome}")
+        else:
+            print("❌ PERIGO: Nenhum restaurante ativo encontrado no banco!")
+    else:
+        print(f"\n✅ SUCESSO: Restaurante '{restaurante.nome}' carregado pelo ID!")
+    # ------------------------------------------------------
 
-def detalhes(request):
-    # Também passamos a qtd aqui, caso você queira mostrar a bolinha na tela de detalhes
     qtd = get_qtd_carrinho(request.session)
-    return render(request, 'detalhes.html', {'qtd_carrinho': qtd})
+    
+    context = {
+        'qtd_carrinho': qtd,
+        'restaurante': restaurante # AGORA SIM ESTAMOS MANDANDO PRO HTML
+    }
+    
+    return render(request, 'home.html', context)
+
+def detalhes(request, produto_id):
+    produto = get_object_or_404(Produto, id=produto_id)
+    qtd = get_qtd_carrinho(request.session)
+    return render(request, 'detalhes.html', {'produto': produto, 'qtd_carrinho': qtd})
 
 def ver_carrinho(request):
     carrinho = request.session.get('carrinho', {})
@@ -47,7 +68,6 @@ def ver_carrinho(request):
     if carrinho:
         produtos_db = Produto.objects.filter(id__in=carrinho.keys())
         for produto in produtos_db:
-            # Converte ID para string para garantir que acha no dicionário
             qtd = carrinho.get(str(produto.id))
             if qtd:
                 subtotal = produto.preco_atual * qtd
@@ -67,13 +87,11 @@ def ver_carrinho(request):
 
 def adicionar_carrinho(request, produto_id):
     carrinho = request.session.get('carrinho', {})
-    produto_id = str(produto_id) # garante q a chave é STRING
-    
+    produto_id = str(produto_id)
     if produto_id in carrinho:
         carrinho[produto_id] += 1
     else:
         carrinho[produto_id] = 1
-        
     request.session['carrinho'] = carrinho
     request.session.modified = True
     return redirect('ver_carrinho')
@@ -81,12 +99,10 @@ def adicionar_carrinho(request, produto_id):
 def remover_carrinho(request, produto_id):
     carrinho = request.session.get('carrinho', {})
     produto_id = str(produto_id)
-    
     if produto_id in carrinho:
         carrinho[produto_id] -= 1
         if carrinho[produto_id] <= 0:
             del carrinho[produto_id]
-            
     request.session['carrinho'] = carrinho
     request.session.modified = True
     return redirect('ver_carrinho')
