@@ -32,12 +32,24 @@ body{
   padding: clamp(12px, 1.8vw, 20px);
 }
 
-.topbar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  padding:8px 4px;
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 10px; /* Um pouco mais de respiro */
+  
+  /* A MÁGICA DO STICKY 👇 */
+  position: sticky;
+  top: 0;
+  z-index: 100; /* Fica por cima dos produtos */
+  background: rgba(255, 255, 255, 0.95); /* Fundo quase branco */
+  backdrop-filter: blur(10px); /* Aquele desfoque de vidro estilo iPhone */
+  margin: 0 -20px; /* Compensa o padding do .app pra encostar nas bordas */
+  padding-left: 20px; /* Devolve o espaçamento interno */
+  padding-right: 20px;
+  border-bottom: 1px solid rgba(0,0,0,0.05); /* Uma linha sutil pra separar */
+
 }
 .iconbtn{
   width:42px;height:42px;border-radius:50%;
@@ -282,3 +294,31 @@ animation: rotation 1s linear infinite;
 .menu-open .menu-overlay { opacity: 1; visibility: visible; }
 .menu-open .sidebar { transform: translateX(0); }
 .body-no-scroll { overflow: hidden; } /* Trava o scroll do fundo */
+
+/* Toast Notification */
+.toast {
+  visibility: hidden;
+  min-width: 250px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 50px; /* Borda redondinha */
+  padding: 12px;
+  position: fixed;
+  z-index: 2000;
+  left: 50%;
+  bottom: 30px; /* Fica flutuando lá embaixo */
+  transform: translateX(-50%);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  opacity: 0;
+  transition: opacity 0.3s, bottom 0.3s;
+}
+
+/* Classe que faz ele aparecer */
+.toast.show {
+  visibility: visible;
+  opacity: 1;
+  bottom: 50px; /* Ele sobe um pouquinho quando aparece */
+}

@@ -37,6 +37,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // --- FUNÇÃO PARA MOSTRAR O TOAST ---
+    function mostrarToast(mensagem) {
+        const toast = document.getElementById("toast-box");
+        if(toast) {
+            toast.textContent = mensagem; // Muda o texto
+            toast.className = "toast show"; // Mostra
+            
+            // Esconde depois de 2.5 segundos
+            setTimeout(function(){ 
+                toast.className = toast.className.replace("show", ""); 
+            }, 2500);
+        }
+    }
+
     // --- NOVA FUNÇÃO AJAX (ADICIONAR RAPIDINHO) ---
     async function adicionarRapidinho(event, produtoId) {
         event.preventDefault();
@@ -66,6 +80,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     badge.style.transform = "scale(1.5)";
                     setTimeout(() => badge.style.transform = "scale(1)", 200);
                 }
+                
+                // Chama o aviso Toast
+                mostrarToast("Item adicionado com sucesso! ✅"); 
             }
         } catch (error) {
             console.error('Erro ao adicionar:', error);
@@ -149,7 +166,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // --- FUNÇÃO PRINCIPAL (CARREGAR DADOS + ABAS) ---
-    // Aqui está a correção principal para evitar tela branca e categorias vazias
     async function carregarDados() {
         try {
             console.log("🚀 Iniciando busca de dados...");
@@ -160,7 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 fetch(API_POPULARES)
             ]);
 
-            // Carrega TUDO (sem filtrar agressivamente aqui)
+            // Carrega TUDO
             todasCategorias = await resCat.json();
             todosOsProdutos = await resProd.json();
             const produtosPopulares = await resPop.json();
@@ -210,7 +226,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     // --- A. Aba Superior ---
                     const btn = document.createElement('button');
                     
-                    // Se for a primeira válida, marca como ativa
                     if (!primeiraCategoriaAtiva) {
                         btn.className = 'tab active';
                         primeiraCategoriaAtiva = true;
