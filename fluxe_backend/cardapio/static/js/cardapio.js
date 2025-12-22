@@ -20,6 +20,30 @@ document.addEventListener("DOMContentLoaded", () => {
     const sidebar = document.getElementById('sidebar');
     const sidebarCategorias = document.getElementById('sidebar-categorias-container');
     const linkQueridinhosSidebar = document.getElementById('link-queridinhos-sidebar');
+    // --- FUNCIONALIDADE: CLICAR NO LOCAL PARA VOLTAR AO TOPO ---
+    const btnLocation = document.querySelector('.place'); // Pega a div do nome do bar
+
+    if (btnLocation) {
+        // Deixa o cursor como "mãozinha" pra indicar que é clicável
+        btnLocation.style.cursor = 'pointer';
+
+        btnLocation.addEventListener('click', () => {
+            // 1. Rola suavemente para o topo zero
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // 2. Se tiver barra de busca, foca nela automaticamente
+            if (inputBusca) {
+                // Pequeno delay para a rolagem começar antes de focar
+                setTimeout(() => {
+                    inputBusca.focus(); // Abre o teclado no celular / Põe o cursor
+                    
+                    // Opcional: Dá um destaque visual (piscar) na busca
+                    inputBusca.parentElement.style.transform = "scale(1.05)";
+                    setTimeout(() => inputBusca.parentElement.style.transform = "scale(1)", 200);
+                }, 300);
+            }
+        });
+    }
 
     // --- FUNÇÕES DE CONTROLE DO MENU ---
     function abrirMenu() { document.body.classList.add('menu-open', 'body-no-scroll'); }
