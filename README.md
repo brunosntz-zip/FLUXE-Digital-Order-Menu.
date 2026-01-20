@@ -1,39 +1,67 @@
-# Fluxe - Cardápio Digital com Autoatendimento
+# ⚡ Fluxe - Cardápio Digital com Autoatendimento
 
-![Status do Projeto](https://img.shields.io/badge/status-em_desenvolvimento-yellow)
-![Backend](https://img.shields.io/badge/backend-Django-092E20?style=flat&logo=django&logoColor=white)
-![Database](https://img.shields.io/badge/database-PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white)
-![Frontend](https://img.shields.io/badge/frontend-JS%20Vanilla-F7DF1E?style=flat&logo=javascript&logoColor=black)
+![Status](https://img.shields.io/badge/Status-MVP%20Funcional-success?style=for-the-badge&logo=statuspage&logoColor=white)
+![Backend](https://img.shields.io/badge/Backend-Django%20REST-092E20?style=for-the-badge&logo=django&logoColor=white)
+![Database](https://img.shields.io/badge/Database-PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
+![Frontend](https://img.shields.io/badge/Frontend-Vanilla%20JS-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 
-Projeto Integrador (P.I.) do 4º semestre de Análise e Desenvolvimento de Sistemas. Este projeto é um MVP (Produto Mínimo Viável) de uma plataforma de gestão de comandas e autoatendimento para bares, restaurantes e casas de show.
+> **Projeto Integrador (P.I.) do 4º semestre de Análise e Desenvolvimento de Sistemas.**
 
-## 1. O Problema
-Em ambientes lotados (bares, baladas, shows), o processo de chamar um garçom, fazer um pedido e esperar por ele gera atrito, frustração para o cliente e perda de receita para o estabelecimento.
+O **Fluxe** é uma plataforma de autoatendimento criada para reduzir filas, aumentar o giro de pedidos e modernizar a experiência em bares, baladas e eventos. Focado na mobilidade, permite que o cliente faça pedidos de qualquer lugar do estabelecimento sem depender do garçom.
 
-## 2. A Solução: Fluxe
-O Fluxe substitui o controle manual por uma solução digital ágil, inspirada em plataformas como o ZIG. O cliente escaneia um QR Code, acessa o cardápio e faz o pedido diretamente pelo seu smartphone.
+---
 
-### Diferenciais do Nosso Modelo (Modelo "Balada")
-O grande diferencial deste projeto é o foco na mobilidade do cliente, ideal para casas de show:
-* **Comanda por Cliente (CPF):** A comanda é vinculada ao CPF do cliente, não a uma mesa física.
-* **Cliente Móvel:** O cliente pode se locomover pelo evento e pedir de diferentes pontos (Bar 1, Pista, Camarote).
-* **Modelo Híbrido:** Otimiza a função do garçom, que pode lançar pedidos para clientes no método tradicional, mas foca no autoatendimento.
+## 📱 Screenshots
 
-## 3. Tecnologias Utilizadas (Stack)
-Este projeto utiliza uma arquitetura MVC com Django servindo APIs REST para o frontend.
+| Cardápio Mobile | Detalhes & Cross-Selling | Carrinho (AJAX) |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/home.png" width="200" alt="Home Screen" /> | <img src="docs/screenshots/detalhes.png" width="200" alt="Detalhes" /> | <img src="docs/screenshots/carrinho.png" width="200" alt="Carrinho" /> |
 
-* **Frontend:** HTML5, CSS3 e JavaScript puro (Vanilla JS) consumindo API interna.
-* **Backend:** **Python & Django** (Django REST Framework).
-* **Banco de Dados:** **PostgreSQL** (Hospedado no Supabase).
-* **Infraestrutura:** Supabase (Database Hosting & Storage).
+*(Adicione os prints na pasta `docs/screenshots` do seu projeto)*
 
-## 4. Como Rodar o Projeto
+---
 
-O projeto requer Python instalado. Siga os passos abaixo:
+## 1. O Problema 🧩
+Em ambientes de alto fluxo (bares lotados, shows), o modelo tradicional gera atrito:
+* Dificuldade de chamar o garçom.
+* Longas esperas apenas para pedir uma bebida simples.
+* Perda de receita por desistência do cliente.
+
+## 2. A Solução: Fluxe 💡
+Uma aplicação web **Mobile-First** que digitaliza o processo. Ao escanear o QR Code, o cliente acessa o cardápio, monta seu pedido e envia para a produção instantaneamente.
+
+### Diferenciais do Modelo (Foco em UX e Vendas)
+* **📍 Cliente Móvel (Comanda via CPF):** A comanda segue o cliente, não a mesa. Ideal para quem transita entre pista, bar e camarote.
+* **🔥 Cross-Selling Inteligente:** O sistema sugere acompanhamentos automaticamente na tela de detalhes (ex: *Whisky* puxa sugestão de *Gelo de Coco* e *Red Bull*), aumentando o ticket médio.
+* **⚡ Carrinho AJAX:** Adição de itens e atualização de quantidade sem recarregar a página (Zero Refresh), garantindo fluidez mesmo em 3G/4G.
+* **🤝 Modelo Híbrido:** Não elimina o garçom, mas o transforma em um facilitador, permitindo também o lançamento manual quando necessário.
+
+---
+
+## 3. Tecnologias Utilizadas (Stack) 🛠️
+
+A arquitetura segue o padrão **MVC (Model-View-Controller)**, priorizando performance e escalabilidade.
+
+* **Frontend:**
+    * **HTML5 & CSS3 Moderno:** Layout responsivo e animações nativas.
+    * **JavaScript (Vanilla):** Zero dependência de frameworks pesados para garantir carregamento instantâneo.
+* **Backend:**
+    * **Python & Django:** Framework robusto para regras de negócio complexas.
+    * **Django REST Framework:** API para comunicação assíncrona.
+    * **Django Admin Personalizado:** Painel de gestão otimizado com widgets de seleção e filtros.
+* **Banco de Dados & Infra:**
+    * **PostgreSQL:** Hospedado no **Supabase**.
+    * **Server-side Sessions:** Gerenciamento seguro de carrinho.
+
+---
+
+## 4. Como Rodar o Projeto ▶️
+
+Pré-requisitos: Python 3.10+ instalado.
 
 1.  **Clone este repositório:**
     ```bash
-    git clone [URL_DO_SEU_REPO_GIT]
+    git clone [https://github.com/SEU_USUARIO/fluxe-backend.git](https://github.com/SEU_USUARIO/fluxe-backend.git)
     cd P.I4
     ```
 
@@ -42,7 +70,7 @@ O projeto requer Python instalado. Siga os passos abaixo:
     # Windows
     python -m venv venv
     .\venv\Scripts\activate
-    
+
     # Linux/Mac
     python3 -m venv venv
     source venv/bin/activate
@@ -50,13 +78,13 @@ O projeto requer Python instalado. Siga os passos abaixo:
 
 3.  **Instale as dependências:**
     ```bash
-    pip install django djangorestframework psycopg2-binary dj-database-url
+    pip install -r requirements.txt
     ```
 
 4.  **Configure o Banco de Dados:**
-    Certifique-se de que a string de conexão do Supabase está configurada no `settings.py` ou nas variáveis de ambiente.
+    * Crie um arquivo `.env` na raiz ou configure o `settings.py` com sua URL de conexão do Supabase/Postgres.
 
-5.  **Execute as Migrações (Sincronizar Banco):**
+5.  **Execute as Migrações:**
     ```bash
     cd fluxe_backend
     python manage.py migrate
@@ -68,10 +96,24 @@ O projeto requer Python instalado. Siga os passos abaixo:
     ```
 
 7.  **Acesse o Sistema:**
-    * **Cardápio (Home):** `http://127.0.0.1:8000/`
-    * **Painel Administrativo:** `http://127.0.0.1:8000/admin/`
+    * **📱 Cardápio (Cliente):** `http://127.0.0.1:8000/`
+    * **⚙️ Painel Administrativo:** `http://127.0.0.1:8000/admin/`
 
-## 5. Estrutura do Backend (Django)
-* **API REST:** Endpoints em `/api/produtos/`, `/api/categorias/` e `/api/populares/`.
-* **Admin:** Interface para cadastro de produtos e gestão de "Queridinhos" (Destaques).
-* **Session:** Gerenciamento de carrinho de compras via sessão do servidor.
+---
+
+## 5. Estrutura e Roadmap 🔮
+
+**Backend Structure:**
+* **API Endpoints:** `/api/produtos/`, `/api/categorias/`, `/api/populares/` (Usados para carregamento dinâmico).
+* **Admin:** Gestão de cardápio, controle de "Queridinhos" e Pedidos.
+
+**Próximos Passos (Backlog):**
+* [ ] Integração com Pagamento (Pix/Cartão).
+* [ ] Dashboard KDS (Kitchen Display System) para a cozinha.
+* [ ] Histórico de pedidos do cliente.
+
+---
+
+<p align="center">
+  Desenvolvido por <strong>Bruno Talarico</strong> 🚀
+</p>
