@@ -5,7 +5,7 @@
 ![Database](https://img.shields.io/badge/Database-PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Frontend](https://img.shields.io/badge/Frontend-Vanilla%20JS-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
 
-> **Projeto Integrador (P.I.) do 4º semestre de Análise e Desenvolvimento de Sistemas.**
+> **Projeto Integrador (P.I.) a partir do 4º semestre de Análise e Desenvolvimento de Sistemas.**
 
 O **Fluxe** é uma plataforma de autoatendimento criada para reduzir filas, aumentar o giro de pedidos e modernizar a experiência em bares, baladas e eventos. Focado na mobilidade, permite que o cliente faça pedidos de qualquer lugar do estabelecimento sem depender do garçom.
 
@@ -33,7 +33,7 @@ Uma aplicação web **Mobile-First** que digitaliza o processo. Ao escanear o QR
 ### Diferenciais do Modelo (Foco em UX e Vendas)
 * **📍 Cliente Móvel (Comanda via CPF):** A comanda segue o cliente, não a mesa. Ideal para quem transita entre pista, bar e camarote.
 * **🔥 Cross-Selling Inteligente:** O sistema sugere acompanhamentos automaticamente na tela de detalhes (ex: *Whisky* puxa sugestão de *Gelo de Coco* e *Red Bull*), aumentando o ticket médio.
-* **⚡ Carrinho AJAX:** Adição de itens e atualização de quantidade sem recarregar a página (Zero Refresh), garantindo fluidez mesmo em 3G/4G.
+* **⚡ Carrinho AJAX:** Adição de itens e atualização de quantidade sem recarregar a página (Zero Refresh), garantindo fluidez mesmo em 4G/5G.
 * **🤝 Modelo Híbrido:** Não elimina o garçom, mas o transforma em um facilitador, permitindo também o lançamento manual quando necessário.
 
 ---
@@ -115,5 +115,5 @@ Pré-requisitos: Python 3.10+ instalado.
 ---
 
 <p align="center">
-  Desenvolvido por <strong>Bruno Talarico</strong> 🚀
+  Desenvolvido por <strong>Bruno Santos</strong> 🚀
 </p>
