@@ -19,7 +19,10 @@
         </svg>
       </a>
       <h3>Detalhes</h3>
-      <div style="width:42px"></div> 
+      
+      <div class="cart-wrap">
+         <div class="badge-cart">0</div> <div style="width:42px"></div> 
+      </div>
     </div>
 
     <div class="product-detail">
@@ -40,6 +43,59 @@
           {{ produto.descricao|default:"Sem descrição definida."|linebreaksbr }}
         </p>
 
+        {% if produto.sugestoes.all %}
+        <div class="sugestoes-wrapper" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #eee;">
+            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #111;">
+                Turbine seu pedido 🔥
+            </h3>
+            
+            <div class="hscroll" style="display:flex; gap:12px; overflow-x:auto; padding-bottom:10px; scrollbar-width: none;">
+                
+                {% for item in produto.sugestoes.all %}
+                <div class="card-sugestao" style="
+                    min-width: 130px; 
+                    background: #fff; 
+                    border: 1px solid #e5e7eb; 
+                    border-radius: 12px; 
+                    padding: 10px; 
+                    display: flex; 
+                    flex-direction: column; 
+                    gap: 8px;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
+                    
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="{{ item.foto_url }}" alt="{{ item.nome }}" 
+                             style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; background:#f5f5f5;" 
+                             onerror="this.src='{% static 'imagens/xequemate.webp' %}'">
+                        
+                        <div style="font-size: 12px; font-weight: 600; line-height: 1.2; color: #333;">
+                            {{ item.nome }}
+                        </div>
+                    </div>
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto;">
+                        <span style="font-size: 13px; font-weight: 700; color: #111;">
+                            R$ {{ item.preco_atual }}
+                        </span>
+                        
+                        <button onclick="window.adicionarRapidinho(event, '{{ item.id }}')" 
+                                type="button"
+                                style="
+                                width: 28px; height: 28px; 
+                                border-radius: 50%; border: none; 
+                                background: #007bff; color: #fff; 
+                                font-weight: bold; cursor: pointer;
+                                display: grid; place-items: center;
+                                box-shadow: 0 2px 5px rgba(0,123,255,0.3);">
+                            +
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+        {% endif %}
         <form action="{% url 'add_carrinho' produto.id %}" method="POST" style="margin-top: 20px;">
             {% csrf_token %} 
             
@@ -60,11 +116,14 @@
     </div>
   </div>
 
+  <div id="toast-box" class="toast">Item adicionado ao carrinho! 🛒</div>
+
+  <script src="{% static 'js/cardapio.js' %}"></script>
+
  <script>
   document.addEventListener("DOMContentLoaded", () => {
       
-      // 1. Pega o preço cru do Django (ex: 20.99 ou 20,99) e transforma em número JS
-      // O .replace(',', '.') garante que funciona mesmo se o Django mandar vírgula
+      // 1. Pega o preço cru do Django e transforma em número JS
       const rawPrice = "{{ produto.preco_atual }}".replace(',', '.');
       const precoUnitario = parseFloat(rawPrice);
       
@@ -72,13 +131,13 @@
       const qtySpan = document.getElementById('qty-display');
       const inputQty = document.getElementById('input-qty');
       const btnTotal = document.getElementById('btn-total');
-      const precoTopo = document.getElementById('preco-topo'); // Preço lá de cima
+      const precoTopo = document.getElementById('preco-topo'); 
       const btnMenos = document.getElementById('btn-menos');
       const btnMais = document.getElementById('btn-mais');
 
       let quantidade = 1;
 
-      // 2. Função de Formatação Brasil (R$ 20,00)
+      // 2. Função de Formatação Brasil
       function formatarMoeda(valor) {
           return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
       }
@@ -86,32 +145,33 @@
       // 3. Atualiza os valores na tela
       function atualizarValores() {
           const total = precoUnitario * quantidade;
-          // Atualiza o botão lá embaixo
           btnTotal.textContent = formatarMoeda(total);
-          // Atualiza o preço unitário lá em cima (pra garantir a vírgula)
           if(precoTopo) precoTopo.textContent = formatarMoeda(precoUnitario);
       }
 
       // Eventos dos botões + e -
-      btnMais.addEventListener('click', () => {
-        quantidade++;
-        qtySpan.textContent = quantidade;
-        inputQty.value = quantidade;
-        atualizarValores();
-      });
+      if(btnMais) {
+          btnMais.addEventListener('click', () => {
+            quantidade++;
+            qtySpan.textContent = quantidade;
+            inputQty.value = quantidade;
+            atualizarValores();
+          });
+      }
 
-      btnMenos.addEventListener('click', () => {
-        if (quantidade > 1) {
-          quantidade--;
-          qtySpan.textContent = quantidade;
-          inputQty.value = quantidade;
-          atualizarValores();
-        }
-      });
+      if(btnMenos) {
+          btnMenos.addEventListener('click', () => {
+            if (quantidade > 1) {
+              quantidade--;
+              qtySpan.textContent = quantidade;
+              inputQty.value = quantidade;
+              atualizarValores();
+            }
+          });
+      }
       
-      // Roda uma vez ao carregar pra arrumar a formatação inicial
       atualizarValores();
   });
 </script>
 </body>
-</html>
+</html> 

@@ -192,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- FUNÇÃO PRINCIPAL (CARREGAR DADOS + ABAS) ---
     async function carregarDados() {
         try {
-            console.log("🚀 Iniciando busca de dados...");
+            console.log("Iniciando busca de dados...");
             
             const [resCat, resProd, resPop] = await Promise.all([
                 fetch(API_CATEGORIAS),
@@ -300,7 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
         } catch (error) {
-            console.error("❌ Erro fatal no JS:", error);
+            console.error("Erro fatal no JS:", error);
         }
     }
 
