@@ -97,5 +97,148 @@
   <script src="{% static 'js/cardapio.js' %}"></script>
   <div id="toast-box" class="toast">Item adicionado ao carrinho! 🛒</div>
 
+  <div id="modal-identificacao" class="modal-overlay" style="display: none;">
+    <div class="modal-box">
+        <h3>Quase lá! 🍺</h3>
+        <p>Pra gente abrir sua comanda e entregar na mesa certa, digita seu CPF rapidinho:</p>
+        
+        <input type="tel" id="input-cpf" placeholder="000.000.000-00" maxlength="14" autocomplete="off">
+        <p id="erro-msg" style="color: #ff4444; font-size: 12px; display: none; margin-top: 5px;"></p>
+
+        <div class="modal-actions">
+            <button onclick="fecharModal()" class="btn-cancelar">Cancelar</button>
+            <button onclick="enviarCPF()" class="btn-confirmar">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.85); /* Fundo escuro */
+        z-index: 9999;
+        display: flex; align-items: center; justify-content: center;
+        backdrop-filter: blur(5px);
+    }
+    .modal-box {
+        background: #1e1e1e; color: #fff;
+        padding: 25px; border-radius: 16px;
+        width: 90%; max-width: 350px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        border: 1px solid #333;
+    }
+    .modal-box h3 { margin-top: 0; color: #facc15; } /* Amarelo Fluxe */
+    .modal-box input {
+        width: 100%; padding: 12px; margin: 15px 0;
+        border-radius: 8px; border: 1px solid #444;
+        background: #2a2a2a; color: #fff; font-size: 18px; text-align: center;
+        outline: none;
+    }
+    .modal-box input:focus { border-color: #facc15; }
+    .modal-actions { display: flex; gap: 10px; justify-content: center; }
+    .btn-confirmar {
+        background: #facc15; color: #000; border: none; padding: 10px 20px;
+        border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1;
+    }
+    .btn-cancelar {
+        background: transparent; color: #aaa; border: 1px solid #444; padding: 10px 20px;
+        border-radius: 8px; cursor: pointer; flex: 1;
+    }
+</style>
+
+<script>
+    // Pega a variável que o Django mandou (True se tiver CPF, None se não)
+    const CLIENTE_LOGADO = "{{ cliente_logado|default_if_none:'' }}"; 
+    let acaoPendente = null; // Guarda o que o usuário queria fazer antes de ser barrado
+
+    // Formata CPF enquanto digita
+    document.getElementById('input-cpf').addEventListener('input', function (e) {
+        let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,3})(\d{0,2})/);
+        e.target.value = !x[2] ? x[1] : x[1] + '.' + x[2] + (x[3] ? '.' + x[3] : '') + (x[4] ? '-' + x[4] : '');
+    });
+
+    // Intercepta todos os formulários de "Adicionar"
+    document.addEventListener("DOMContentLoaded", function() {
+        const forms = document.querySelectorAll("form[action*='add']");
+        
+        forms.forEach(form => {
+            form.addEventListener("submit", function(e) {
+                if (!CLIENTE_LOGADO) {
+                    e.preventDefault(); // PARE! Não envie o form.
+                    acaoPendente = () => form.submit(); // Guarda a ação pra depois
+                    abrirModal();
+                }
+            });
+        });
+
+        // Intercepta links diretos (se houver botões <a> de adicionar)
+        const links = document.querySelectorAll("a[href*='/carrinho/add/']");
+        links.forEach(link => {
+            link.addEventListener("click", function(e) {
+                if (!CLIENTE_LOGADO) {
+                    e.preventDefault();
+                    acaoPendente = () => window.location.href = link.href;
+                    abrirModal();
+                }
+            });
+        });
+    });
+
+    function abrirModal() {
+        document.getElementById('modal-identificacao').style.display = 'flex';
+        document.getElementById('input-cpf').focus();
+    }
+
+    function fecharModal() {
+        document.getElementById('modal-identificacao').style.display = 'none';
+        document.getElementById('erro-msg').style.display = 'none';
+    }
+
+    function enviarCPF() {
+        const cpf = document.getElementById('input-cpf').value;
+        const btn = document.querySelector('.btn-confirmar');
+        const erroMsg = document.getElementById('erro-msg');
+
+        if (cpf.length < 14) {
+            erroMsg.innerText = "CPF incompleto, chefia!";
+            erroMsg.style.display = 'block';
+            return;
+        }
+
+        btn.innerText = "Validando...";
+        btn.disabled = true;
+
+        // Bate na API que criamos no Django
+        fetch('/api/identificar/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ cpf: cpf })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'sucesso') {
+                // SUCESSO! Recarrega a página para o Django atualizar a sessão
+                // E tenta executar a ação que o usuário queria (embora o reload limpe a memória JS,
+                // na próxima vez ele já vai estar logado e vai passar direto).
+                window.location.reload(); 
+            } else {
+                erroMsg.innerText = data.mensagem || "Erro ao validar CPF.";
+                erroMsg.style.display = 'block';
+                btn.innerText = "Confirmar";
+                btn.disabled = false;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            erroMsg.innerText = "Erro de conexão. Tente de novo.";
+            erroMsg.style.display = 'block';
+            btn.innerText = "Confirmar";
+            btn.disabled = false;
+        });
+    }
+</script>
 </body>
 </html>

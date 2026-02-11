@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework import viewsets
 from django.views.decorators.http import require_http_methods
-from .models import CategoriaProduto, Produto, Restaurante 
+from django.views.decorators.csrf import csrf_exempt
+from .models import CategoriaProduto, Produto, Restaurante, Cliente, Comanda
 from .serializers import CategoriaProdutoSerializer, ProdutoSerializer
 from django.http import JsonResponse
+import json
 
 # API REST 
 
@@ -51,7 +53,8 @@ def home(request):
     
     context = {
         'qtd_carrinho': qtd,
-        'restaurante': restaurante # AGORA SIM ESTAMOS MANDANDO PRO HTML
+        'restaurante': restaurante, # AGORA SIM ESTAMOS MANDANDO PRO HTML
+        'cliente_logado': request.session.get('cpf_cliente', None) # Manda pro front saber se já tá logado
     }
     
     return render(request, 'home.html', context)
@@ -82,7 +85,8 @@ def ver_carrinho(request):
     context = {
         'itens': itens_carrinho, 
         'total': total_geral,
-        'qtd_carrinho': get_qtd_carrinho(request.session)
+        'qtd_carrinho': get_qtd_carrinho(request.session),
+        'cliente_logado': request.session.get('cpf_cliente', None)
     }
     return render(request, 'carrinho.html', context)
 
@@ -140,3 +144,57 @@ def limpar_carrinho(request):
         del request.session['carrinho']
         request.session.modified = True
     return redirect('ver_carrinho')
+
+# --- NOVA API DE IDENTIFICAÇÃO (FLUXE ZIG) ---
+@csrf_exempt 
+@require_http_methods(["POST"])
+def identificar_cliente(request):
+    try:
+        data = json.loads(request.body)
+        cpf = data.get('cpf')
+        # Limpa o CPF (remove pontos e traços se vier)
+        cpf_limpo = ''.join(filter(str.isdigit, str(cpf)))
+
+        if not cpf_limpo or len(cpf_limpo) != 11:
+             return JsonResponse({'status': 'erro', 'mensagem': 'CPF inválido'}, status=400)
+
+        # ID DO RESTAURANTE (Fixo por enquanto, depois pegamos dinâmico)
+        ID_RESTAURANTE = 'b5bcffc5-90c7-4e76-bd19-5c56dbf31b3d'
+        
+        # 1. Busca ou Cria o Cliente
+        cliente, created = Cliente.objects.get_or_create(
+            cpf=cpf_limpo,
+            restaurante_id=ID_RESTAURANTE,
+            defaults={'nome': 'Cliente Novo'} 
+        )
+
+        # 2. Busca uma comanda ABERTA para este cliente
+        comanda = Comanda.objects.filter(
+            cliente=cliente,
+            restaurante_id=ID_RESTAURANTE,
+            status='ABERTA' # Garantir que o enum no banco bate com isso
+        ).first()
+
+        # 3. Se não tiver comanda aberta, cria uma nova
+        if not comanda:
+            comanda = Comanda.objects.create(
+                cliente=cliente,
+                restaurante_id=ID_RESTAURANTE,
+                status='ABERTA'
+            )
+
+        # 4. O PULO DO GATO: Salva na Sessão (Cookie)
+        request.session['cliente_id'] = str(cliente.id)
+        request.session['comanda_id'] = str(comanda.id)
+        request.session['cpf_cliente'] = cliente.cpf
+        request.session.modified = True
+
+        return JsonResponse({
+            'status': 'sucesso', 
+            'cliente': cliente.nome,
+            'comanda_id': comanda.id
+        })
+
+    except Exception as e:
+        print(f"Erro ao identificar: {e}")
+        return JsonResponse({'status': 'erro', 'mensagem': 'Erro interno'}, status=500)

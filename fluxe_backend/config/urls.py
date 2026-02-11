@@ -18,6 +18,7 @@ router = routers.DefaultRouter()
 router.register(r'categorias', CategoriaProdutoViewSet)
 router.register(r'produtos', ProdutoViewSet)
 router.register(r'populares', ProdutoPopularViewSet, basename='produto-popular')
+from cardapio.views import identificar_cliente
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -36,4 +37,5 @@ urlpatterns = [
     path('carrinho/add/<str:produto_id>/', adicionar_carrinho, name='add_carrinho'),
     path('carrinho/remove/<str:produto_id>/', remover_carrinho, name='remove_carrinho'),
     path('carrinho/limpar/', limpar_carrinho, name='limpar_carrinho'),
+    path('api/identificar/', identificar_cliente, name='identificar_cliente'),
 ]
