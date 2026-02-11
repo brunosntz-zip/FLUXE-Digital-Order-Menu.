@@ -66,7 +66,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.parse(
-                'postgresql://postgres.fkxejnpjeoctlxiuhpvs:Chapeleiro%237051@aws-1-sa-east-1.pooler.supabase.com:5432/postgres'
+                'postgresql://postgres.fkxejnpjeoctlxiuhpvs:Chapeleiro%237051@aws-1-sa-east-1.pooler.supabase.com:6543/postgres'
     )
 }
 
