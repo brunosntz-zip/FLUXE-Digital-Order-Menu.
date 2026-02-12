@@ -16,7 +16,6 @@
     </header>
 
     <div class="container">
-        
         <div class="banner-18">
             <div class="icon-18">18</div>
             <span class="text-18">Álcool proibido para menores de idade.</span>
@@ -56,29 +55,26 @@
                 <a href="{% url 'home' %}" class="back-link">Voltar ao Cardápio</a>
             </div>
         {% endif %}
-
     </div>
 
     {% if itens %}
-    <div class="checkout-area minimized" id="checkout-sheet">
+    <div class="checkout-area" id="checkout-sheet">
         
-        <div class="sheet-handle-area" id="drag-handle">
+        <div class="sheet-handle-area" id="sheet-trigger">
             <div class="sheet-handle"></div>
-            <div class="sheet-arrow">⌃</div> </div>
+            <div class="sheet-arrow">▲</div> </div>
 
-        <div class="sheet-summary" id="summary-area">
-            <div class="total-row">
-                <span>Total</span>
-                <span>R$ {{ total }}</span>
-            </div>
+        <div class="total-row">
+            <span>Total</span>
+            <span>R$ {{ total }}</span>
         </div>
 
-        <div class="sheet-content-expanded" id="details-area">
-            <div style="height: 10px;"></div>
+        <div class="sheet-expandable-content" id="sheet-content">
             <label class="label-cpf">Identificação (CPF)</label>
+            
             {% if cliente_logado %}
                 <div class="input-cpf-box" style="background: #e9ecef; border:none;">
-                    <span style="font-weight:600; color:#495057;">CPF vinculado: {{ cliente_logado }}</span>
+                    <span style="font-weight:600; color:#495057;">CPF: {{ cliente_logado }}</span>
                 </div>
             {% else %}
                 <div class="input-cpf-box">
@@ -86,105 +82,67 @@
                     <input type="tel" class="input-cpf" id="input-cpf-checkout" placeholder="000.000.000-00">
                 </div>
             {% endif %}
-            
+
             <p style="font-size:12px; color:#666; text-align:center; margin-bottom:10px;">
                 Ao confirmar, seu pedido será enviado para a cozinha.
             </p>
         </div>
 
-        <button class="btn-blue" id="btn-action">
-            Fechar Pedido
-        </button>
+        <button class="btn-blue" id="btn-action">Fechar Pedido</button>
     </div>
     {% endif %}
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const sheet = document.getElementById('checkout-sheet');
-            const handle = document.getElementById('drag-handle');
+            const trigger = document.getElementById('sheet-trigger');
             const btn = document.getElementById('btn-action');
             const inputCpf = document.getElementById('input-cpf-checkout');
             
             if(!sheet) return;
 
             let isExpanded = false;
-            let startY = 0;
-            let currentY = 0;
-            
-            // Valor exato para esconder o conteúdo (baseado em teste visual)
-            const minimizedTransform = `translateY(180px)`; 
-            
-            // Inicializa minimizado
-            sheet.style.transform = minimizedTransform;
 
-            function expand() {
-                // Tira a classe minimized pra mostrar o CPF
-                sheet.classList.remove('minimized'); 
-                sheet.style.transform = `translateY(0px)`;
-                isExpanded = true;
-                btn.textContent = "Confirmar Pedido";
-                if(inputCpf) setTimeout(() => inputCpf.focus(), 300);
+            function toggleSheet() {
+                isExpanded = !isExpanded;
+                if (isExpanded) {
+                    sheet.classList.add('expanded');
+                    btn.textContent = "Confirmar Pedido";
+                    if(inputCpf) setTimeout(() => inputCpf.focus(), 300);
+                } else {
+                    sheet.classList.remove('expanded');
+                    btn.textContent = "Fechar Pedido"; // Volta ao texto original
+                    if(inputCpf) inputCpf.blur();
+                }
             }
 
-            function collapse() {
-                sheet.style.transform = minimizedTransform;
-                // Espera a animação descer pra esconder o conteúdo (opcional, mas evita glitch)
-                setTimeout(() => sheet.classList.add('minimized'), 200); 
-                isExpanded = false;
-                btn.textContent = "Fechar Pedido";
-                if(inputCpf) inputCpf.blur();
-            }
+            // Clique na barra cinza ou setinha
+            trigger.addEventListener('click', toggleSheet);
 
-            // Click no botão
+            // Clique no botão principal
             btn.addEventListener('click', () => {
                 if (!isExpanded) {
-                    expand();
+                    toggleSheet(); // Abre se estiver fechado
                 } else {
-                    // Lógica de Enviar (AQUI VAI O POST PRO BACKEND DEPOIS)
-                    alert("Enviando pedido... (Próximo passo)");
+                    // AQUI ENTRA O POST DO PEDIDO NO FUTURO
+                    alert("Enviando pedido...");
                 }
             });
 
-            // Click no Handle
-            handle.addEventListener('click', () => {
-                isExpanded ? collapse() : expand();
+            // Detecção de Swipe (Arrastar dedo)
+            let touchStartY = 0;
+            trigger.addEventListener('touchstart', e => {
+                touchStartY = e.changedTouches[0].screenY;
             });
 
-            // Lógica de Arrastar (Touch)
-            handle.addEventListener('touchstart', (e) => {
-                startY = e.touches[0].clientY;
-                sheet.style.transition = 'none';
+            trigger.addEventListener('touchend', e => {
+                let touchEndY = e.changedTouches[0].screenY;
+                // Se arrastou pra CIMA (valor diminui) -> Abre
+                if (touchStartY - touchEndY > 50 && !isExpanded) toggleSheet();
+                // Se arrastou pra BAIXO (valor aumenta) -> Fecha
+                if (touchEndY - touchStartY > 50 && isExpanded) toggleSheet();
             });
 
-            handle.addEventListener('touchmove', (e) => {
-                currentY = e.touches[0].clientY;
-                const diff = currentY - startY;
-                
-                // Puxando pra baixo (fechar)
-                if (isExpanded && diff > 0) {
-                    sheet.style.transform = `translateY(${diff}px)`;
-                }
-                // Puxando pra cima (abrir)
-                else if (!isExpanded && diff < 0) {
-                    // Se não tiver a classe minimized tirada antes, não vê o conteúdo subindo
-                    sheet.classList.remove('minimized'); 
-                    sheet.style.transform = `translateY(${180 + diff}px)`;
-                }
-            });
-
-            handle.addEventListener('touchend', (e) => {
-                sheet.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
-                const diff = currentY - startY;
-
-                if (isExpanded) {
-                    if (diff > 50) collapse(); 
-                    else expand(); 
-                } else {
-                    if (diff < -50) expand(); 
-                    else collapse(); 
-                }
-            });
-            
             // Máscara de CPF
             if(inputCpf) {
                 inputCpf.addEventListener('input', function (e) {
