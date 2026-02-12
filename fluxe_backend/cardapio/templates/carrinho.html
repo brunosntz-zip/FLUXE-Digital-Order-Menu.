@@ -15,7 +15,9 @@
         <div style="width: 24px;"></div> 
     </header>
 
-    <div class="container" style="padding-bottom: 250px;"> <div class="banner-18">
+    <div class="container">
+        
+        <div class="banner-18">
             <div class="icon-18">18</div>
             <span class="text-18">Álcool proibido para menores de idade.</span>
         </div>
@@ -59,9 +61,10 @@
 
     {% if itens %}
     <div class="checkout-area minimized" id="checkout-sheet">
+        
         <div class="sheet-handle-area" id="drag-handle">
             <div class="sheet-handle"></div>
-        </div>
+            <div class="sheet-arrow">⌃</div> </div>
 
         <div class="sheet-summary" id="summary-area">
             <div class="total-row">
@@ -71,7 +74,7 @@
         </div>
 
         <div class="sheet-content-expanded" id="details-area">
-            <div style="height: 15px;"></div>
+            <div style="height: 10px;"></div>
             <label class="label-cpf">Identificação (CPF)</label>
             {% if cliente_logado %}
                 <div class="input-cpf-box" style="background: #e9ecef; border:none;">
@@ -100,7 +103,6 @@
             const sheet = document.getElementById('checkout-sheet');
             const handle = document.getElementById('drag-handle');
             const btn = document.getElementById('btn-action');
-            const details = document.getElementById('details-area');
             const inputCpf = document.getElementById('input-cpf-checkout');
             
             if(!sheet) return;
@@ -109,14 +111,15 @@
             let startY = 0;
             let currentY = 0;
             
-            // Altura do conteúdo expandido (aproximada para cálculo)
-            const expandedHeight = 250; 
-            const minimizedTransform = `translateY(${160}px)`; // Esconde a parte do CPF
+            // Valor exato para esconder o conteúdo (baseado em teste visual)
+            const minimizedTransform = `translateY(180px)`; 
             
             // Inicializa minimizado
             sheet.style.transform = minimizedTransform;
 
             function expand() {
+                // Tira a classe minimized pra mostrar o CPF
+                sheet.classList.remove('minimized'); 
                 sheet.style.transform = `translateY(0px)`;
                 isExpanded = true;
                 btn.textContent = "Confirmar Pedido";
@@ -125,6 +128,8 @@
 
             function collapse() {
                 sheet.style.transform = minimizedTransform;
+                // Espera a animação descer pra esconder o conteúdo (opcional, mas evita glitch)
+                setTimeout(() => sheet.classList.add('minimized'), 200); 
                 isExpanded = false;
                 btn.textContent = "Fechar Pedido";
                 if(inputCpf) inputCpf.blur();
@@ -135,7 +140,7 @@
                 if (!isExpanded) {
                     expand();
                 } else {
-                    // Lógica de Enviar Pedido (Ainda vamos fazer o POST real)
+                    // Lógica de Enviar (AQUI VAI O POST PRO BACKEND DEPOIS)
                     alert("Enviando pedido... (Próximo passo)");
                 }
             });
@@ -148,21 +153,22 @@
             // Lógica de Arrastar (Touch)
             handle.addEventListener('touchstart', (e) => {
                 startY = e.touches[0].clientY;
-                sheet.style.transition = 'none'; // Tira animação pra ficar fluido
+                sheet.style.transition = 'none';
             });
 
             handle.addEventListener('touchmove', (e) => {
                 currentY = e.touches[0].clientY;
                 const diff = currentY - startY;
                 
-                // Se estiver expandido e puxar pra baixo (positivo)
+                // Puxando pra baixo (fechar)
                 if (isExpanded && diff > 0) {
                     sheet.style.transform = `translateY(${diff}px)`;
                 }
-                // Se estiver minimizado e puxar pra cima (negativo)
+                // Puxando pra cima (abrir)
                 else if (!isExpanded && diff < 0) {
-                    // Calcula offset baseado no minimizedTransform (160)
-                    sheet.style.transform = `translateY(${160 + diff}px)`;
+                    // Se não tiver a classe minimized tirada antes, não vê o conteúdo subindo
+                    sheet.classList.remove('minimized'); 
+                    sheet.style.transform = `translateY(${180 + diff}px)`;
                 }
             });
 
@@ -170,17 +176,16 @@
                 sheet.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
                 const diff = currentY - startY;
 
-                // Decisão baseada na distância arrastada
                 if (isExpanded) {
-                    if (diff > 50) collapse(); // Arrastou muito pra baixo -> fecha
-                    else expand(); // Volta pro lugar
+                    if (diff > 50) collapse(); 
+                    else expand(); 
                 } else {
-                    if (diff < -50) expand(); // Arrastou muito pra cima -> abre
-                    else collapse(); // Volta pro lugar
+                    if (diff < -50) expand(); 
+                    else collapse(); 
                 }
             });
             
-            // Formata CPF no input do checkout também
+            // Máscara de CPF
             if(inputCpf) {
                 inputCpf.addEventListener('input', function (e) {
                     let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,3})(\d{0,2})/);
