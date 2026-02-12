@@ -1,3 +1,9 @@
+html, body {
+    overflow-x: hidden; /* Proíbe rolagem horizontal */
+    max-width: 100%;    /* Garante que nada passe da tela */
+    position: relative; /* Ajuda a conter elementos absolutos */
+    overscroll-behavior-y: none; /* (Opcional) Evita o "bounce" elástico no topo/fundo em iPhones */
+}
 :root{
   --bg:#ffffff;
   --text:#111111;
