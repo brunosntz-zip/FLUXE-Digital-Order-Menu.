@@ -26,6 +26,19 @@ def get_qtd_carrinho(session):
     carrinho = session.get('carrinho', {})
     return sum(carrinho.values())
 
+#--- função de excluir carrinho
+def excluir_item_carrinho(request, produto_id):
+    carrinho = request.session.get('carrinho', {})
+    produto_id = str(produto_id)
+
+    if produto_id in carrinho:
+        del carrinho[produto_id]
+
+    request.session['carrinho'] = carrinho
+    request.session.modified = True
+    return redirect('ver_carrinho')
+
+
 # --- VIEWS (Páginas HTML) ---
 
 def home(request):
@@ -198,3 +211,5 @@ def identificar_cliente(request):
     except Exception as e:
         print(f"Erro ao identificar: {e}")
         return JsonResponse({'status': 'erro', 'mensagem': 'Erro interno'}, status=500)
+    
+    

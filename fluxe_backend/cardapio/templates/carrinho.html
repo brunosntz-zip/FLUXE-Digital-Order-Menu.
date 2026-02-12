@@ -6,20 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Seu Pedido</title>
     <link rel="stylesheet" href="{% static 'css/carrinho.css' %}">
-    </head>
+</head>
 <body>
 
     <header class="header">
-        <a href="{% url 'home' %}" class="icon-btn">❮</a>
-        <h1>Seu Pedido</h1>
-        <a href="{% url 'limpar_carrinho' %}" class="icon-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-        </a>
+        <a href="{% url 'home' %}" class="icon-btn">❮ Voltar</a>
+        <h1>Seu Carrinho</h1>
+        <div style="width: 24px;"></div> 
     </header>
 
-    <div class="container">
-        
-        <div class="banner-18">
+    <div class="container" style="padding-bottom: 250px;"> <div class="banner-18">
             <div class="icon-18">18</div>
             <span class="text-18">Álcool proibido para menores de idade.</span>
         </div>
@@ -27,7 +23,7 @@
         {% if itens %}
             {% for item in itens %}
             <div class="cart-card">
-                <img src="{{ item.produto.foto_url }}" class="card-img" alt="Foto">
+                <img src="{{ item.produto.foto_url }}" class="card-img" alt="Foto" onerror="this.src='{% static 'imagens/xequemate.webp' %}'">
                 
                 <div class="card-info">
                     <div class="card-top">
@@ -35,7 +31,7 @@
                             <div class="prod-name">{{ item.produto.nome }}</div>
                             <span class="prod-cat">{{ item.produto.categoria.nome|default:"Bebidas" }}</span>
                         </div>
-                        <a href="{% url 'remove_carrinho' item.produto.id %}" class="trash-icon">
+                        <a href="{% url 'excluir_item_carrinho' item.produto.id %}" class="trash-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                         </a>
                     </div>
@@ -55,37 +51,144 @@
         {% else %}
             <div class="empty-msg">
                 <p>Seu carrinho está vazio.</p>
-                <a href="javascript:history.back()" class="back-link">Voltar ao Cardápio</a>
+                <a href="{% url 'home' %}" class="back-link">Voltar ao Cardápio</a>
             </div>
         {% endif %}
 
     </div>
 
     {% if itens %}
-    <div class="checkout-area">
-        
-        <label class="label-cpf">Digite seu CPF</label>
-        <div class="input-cpf-box">
-            <svg class="cpf-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <input type="text" class="input-cpf" placeholder="123.456.789-10">
+    <div class="checkout-area minimized" id="checkout-sheet">
+        <div class="sheet-handle-area" id="drag-handle">
+            <div class="sheet-handle"></div>
         </div>
 
-        <div class="info-row">
-            <span>(Nome do Cliente)</span>
-            <span>Entrada às HH:MM</span>
-        </div>
-        <div class="info-row">
-            <span>Mesa <strong>XX</strong></span>
-        </div>
-
-        <div class="total-row">
-            <span>Total do Pedido</span>
-            <span>R$ {{ total }}</span>
+        <div class="sheet-summary" id="summary-area">
+            <div class="total-row">
+                <span>Total</span>
+                <span>R$ {{ total }}</span>
+            </div>
         </div>
 
-        <button class="btn-blue">Realizar Pedido</button>
+        <div class="sheet-content-expanded" id="details-area">
+            <div style="height: 15px;"></div>
+            <label class="label-cpf">Identificação (CPF)</label>
+            {% if cliente_logado %}
+                <div class="input-cpf-box" style="background: #e9ecef; border:none;">
+                    <span style="font-weight:600; color:#495057;">CPF vinculado: {{ cliente_logado }}</span>
+                </div>
+            {% else %}
+                <div class="input-cpf-box">
+                    <svg class="cpf-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <input type="tel" class="input-cpf" id="input-cpf-checkout" placeholder="000.000.000-00">
+                </div>
+            {% endif %}
+            
+            <p style="font-size:12px; color:#666; text-align:center; margin-bottom:10px;">
+                Ao confirmar, seu pedido será enviado para a cozinha.
+            </p>
+        </div>
+
+        <button class="btn-blue" id="btn-action">
+            Fechar Pedido
+        </button>
     </div>
     {% endif %}
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sheet = document.getElementById('checkout-sheet');
+            const handle = document.getElementById('drag-handle');
+            const btn = document.getElementById('btn-action');
+            const details = document.getElementById('details-area');
+            const inputCpf = document.getElementById('input-cpf-checkout');
+            
+            if(!sheet) return;
+
+            let isExpanded = false;
+            let startY = 0;
+            let currentY = 0;
+            
+            // Altura do conteúdo expandido (aproximada para cálculo)
+            const expandedHeight = 250; 
+            const minimizedTransform = `translateY(${160}px)`; // Esconde a parte do CPF
+            
+            // Inicializa minimizado
+            sheet.style.transform = minimizedTransform;
+
+            function expand() {
+                sheet.style.transform = `translateY(0px)`;
+                isExpanded = true;
+                btn.textContent = "Confirmar Pedido";
+                if(inputCpf) setTimeout(() => inputCpf.focus(), 300);
+            }
+
+            function collapse() {
+                sheet.style.transform = minimizedTransform;
+                isExpanded = false;
+                btn.textContent = "Fechar Pedido";
+                if(inputCpf) inputCpf.blur();
+            }
+
+            // Click no botão
+            btn.addEventListener('click', () => {
+                if (!isExpanded) {
+                    expand();
+                } else {
+                    // Lógica de Enviar Pedido (Ainda vamos fazer o POST real)
+                    alert("Enviando pedido... (Próximo passo)");
+                }
+            });
+
+            // Click no Handle
+            handle.addEventListener('click', () => {
+                isExpanded ? collapse() : expand();
+            });
+
+            // Lógica de Arrastar (Touch)
+            handle.addEventListener('touchstart', (e) => {
+                startY = e.touches[0].clientY;
+                sheet.style.transition = 'none'; // Tira animação pra ficar fluido
+            });
+
+            handle.addEventListener('touchmove', (e) => {
+                currentY = e.touches[0].clientY;
+                const diff = currentY - startY;
+                
+                // Se estiver expandido e puxar pra baixo (positivo)
+                if (isExpanded && diff > 0) {
+                    sheet.style.transform = `translateY(${diff}px)`;
+                }
+                // Se estiver minimizado e puxar pra cima (negativo)
+                else if (!isExpanded && diff < 0) {
+                    // Calcula offset baseado no minimizedTransform (160)
+                    sheet.style.transform = `translateY(${160 + diff}px)`;
+                }
+            });
+
+            handle.addEventListener('touchend', (e) => {
+                sheet.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+                const diff = currentY - startY;
+
+                // Decisão baseada na distância arrastada
+                if (isExpanded) {
+                    if (diff > 50) collapse(); // Arrastou muito pra baixo -> fecha
+                    else expand(); // Volta pro lugar
+                } else {
+                    if (diff < -50) expand(); // Arrastou muito pra cima -> abre
+                    else collapse(); // Volta pro lugar
+                }
+            });
+            
+            // Formata CPF no input do checkout também
+            if(inputCpf) {
+                inputCpf.addEventListener('input', function (e) {
+                    let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,3})(\d{0,2})/);
+                    e.target.value = !x[2] ? x[1] : x[1] + '.' + x[2] + (x[3] ? '.' + x[3] : '') + (x[4] ? '-' + x[4] : '');
+                });
+            }
+        });
+    </script>
+
 </body>
-</html> 
+</html>

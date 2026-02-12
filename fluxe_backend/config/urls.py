@@ -10,7 +10,8 @@ from cardapio.views import (
     remover_carrinho, 
     limpar_carrinho,
     home,      
-    detalhes   
+    detalhes,
+    excluir_item_carrinho
 )
 
 # Configuração da API
@@ -29,7 +30,6 @@ urlpatterns = [
     # PAGINAS HTML
     path('', home, name='home'),
     
-    # 👇 AQUI ESTAVA O ERRO! Adicionei <str:produto_id> pra ele aceitar o código do produto
     path('detalhes/<str:produto_id>/', detalhes, name='detalhes'),
 
     # CARRINHO
@@ -38,4 +38,5 @@ urlpatterns = [
     path('carrinho/remove/<str:produto_id>/', remover_carrinho, name='remove_carrinho'),
     path('carrinho/limpar/', limpar_carrinho, name='limpar_carrinho'),
     path('api/identificar/', identificar_cliente, name='identificar_cliente'),
+    path('carrinho/excluir/<str:produto_id>/', excluir_item_carrinho, name='excluir_item_carrinho'), 
 ]

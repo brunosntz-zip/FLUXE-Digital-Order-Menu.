@@ -6,7 +6,8 @@
 body {
     background-color: #f8f9fa;
     color: #212529;
-    padding-bottom: 200px; /* Espaço para o footer não cobrir itens */
+    /* Espaço extra no final para o último item não ficar escondido atrás da barra deslizante */
+    padding-bottom: 280px; 
 }
 
 /* HEADER */
@@ -17,7 +18,7 @@ body {
     box-shadow: 0 2px 10px rgba(0,0,0,0.03);
 }
 .header h1 { font-size: 18px; font-weight: 700; color: #000; }
-.icon-btn { font-size: 20px; color: #000; text-decoration: none; display: flex; }
+.icon-btn { font-size: 16px; color: #0d6efd; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 5px;}
 
 /* CONTAINER */
 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -44,7 +45,7 @@ body {
 }
 
 .card-img {
-    width: 60px; height: 100px; object-fit: contain; /* Ajuste para latas/garrafas */
+    width: 60px; height: 100px; object-fit: contain;
     flex-shrink: 0;
 }
 
@@ -52,9 +53,9 @@ body {
 
 .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
 .prod-name { font-size: 16px; font-weight: 700; color: #000; line-height: 1.2; }
-.trash-icon { color: #0d6efd; font-size: 18px; cursor: pointer; }
+.trash-icon { color: #dc3545; font-size: 18px; cursor: pointer; padding: 5px; } /* Lixeira vermelha */
 
-.prod-cat { font-size: 12px; color: #0d6efd; font-weight: 500; margin-top: 2px; display: block; }
+.prod-cat { font-size: 12px; color: #6c757d; font-weight: 500; margin-top: 2px; display: block; }
 
 .card-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
 .prod-price { font-size: 16px; font-weight: 700; color: #000; }
@@ -70,33 +71,85 @@ body {
 }
 .qty-num { font-size: 14px; font-weight: 600; min-width: 20px; text-align: center; }
 
-/* FOOTER / CHECKOUT */
+/* --- BOTTOM SHEET (PAINEL DESLIZANTE) --- */
 .checkout-area {
-    background: #fff; border-top-left-radius: 25px; border-top-right-radius: 25px;
-    padding: 25px 20px; position: fixed; bottom: 0; left: 0; right: 0;
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.05); z-index: 100;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #fff;
+    border-top-left-radius: 25px;
+    border-top-right-radius: 25px;
+    padding: 10px 20px 25px; /* Padding ajustado */
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.15);
+    z-index: 1000;
+    
+    /* Configuração de Transição para o efeito suave */
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    transform: translateY(0); /* Estado inicial controlado pelo JS */
+    touch-action: none; /* ESSENCIAL para o arrastar funcionar no celular */
 }
 
-.label-cpf { font-size: 14px; font-weight: 700; margin-bottom: 10px; display: block; }
-.input-cpf-box {
-    display: flex; align-items: center; border: 1px solid #ced4da;
-    border-radius: 12px; padding: 12px; margin-bottom: 20px;
+/* O Puxador (Barra cinza no topo) */
+.sheet-handle-area {
+    width: 100%;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    margin-bottom: 5px;
 }
-.cpf-icon { margin-right: 10px; color: #6c757d; }
-.input-cpf { border: none; outline: none; width: 100%; font-size: 15px; }
+.sheet-handle {
+    width: 50px;
+    height: 5px;
+    background-color: #dee2e6;
+    border-radius: 10px;
+}
 
-.info-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; color: #000; }
+/* Conteúdo que some/aparece */
+.sheet-content-expanded {
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+
+/* Quando minimizado, esconde o conteúdo extra */
+.checkout-area.minimized .sheet-content-expanded {
+    opacity: 0;
+    pointer-events: none;
+    height: 0;
+    overflow: hidden;
+}
+
+/* Resumo (Total) que sempre aparece */
+.sheet-summary {
+    margin-top: 5px;
+}
+
 .total-row {
     display: flex; justify-content: space-between; font-size: 18px; font-weight: 800;
-    margin-top: 15px; margin-bottom: 20px; color: #000;
+    margin-bottom: 10px; color: #000;
 }
 
-.btn-blue {
-    background: #2563eb; color: white; width: 100%; border: none;
-    padding: 16px; border-radius: 50px; font-size: 16px; font-weight: 700;
-    cursor: pointer;
+/* Inputs dentro do Sheet */
+.label-cpf { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: block; }
+.input-cpf-box {
+    display: flex; align-items: center; border: 1px solid #ced4da;
+    border-radius: 12px; padding: 12px; margin-bottom: 15px;
+    background: #fff;
 }
+.cpf-icon { margin-right: 10px; color: #6c757d; }
+.input-cpf { border: none; outline: none; width: 100%; font-size: 15px; background: transparent; }
+
+/* Botão de Ação Principal */
+.btn-blue {
+    background: #007bff; /* Azul padrão */
+    color: white; width: 100%; border: none;
+    padding: 16px; border-radius: 50px; font-size: 16px; font-weight: 700;
+    cursor: pointer; margin-top: 10px;
+    box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+    transition: transform 0.1s;
+}
+.btn-blue:active { transform: scale(0.98); }
 
 /* VAZIO */
 .empty-msg { text-align: center; margin-top: 50px; color: #6c757d; }
-.back-link { display: block; text-align: center; margin-top: 20px; color: #0d6efd; font-weight: 600; }
+.back-link { display: block; text-align: center; margin-top: 20px; color: #0d6efd; font-weight: 600; text-decoration: none; }
