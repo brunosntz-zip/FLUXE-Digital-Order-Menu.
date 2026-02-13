@@ -80,7 +80,7 @@
             {% else %}
                 <div class="input-cpf-box">
                     <svg class="cpf-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    <input type="tel" class="input-cpf" id="input-cpf-checkout" placeholder="CPF (apenas números)">
+                    <input type="tel" class="input-cpf" id="input-cpf-checkout" placeholder="CPF">
                 </div>
             {% endif %}
 
@@ -91,7 +91,7 @@
                     <label class="radio-box" onclick="toggleMesa(false)">
                         <input type="radio" name="tipo_entrega" value="retirada" checked>
                         <div class="radio-content">
-                            <span style="font-size:24px;">🍺</span>
+                            <span style="font-size:24px;">🍸</span>
                             <span>Buscar no Bar</span>
                         </div>
                     </label>
@@ -99,7 +99,7 @@
                     <label class="radio-box" onclick="toggleMesa(true)">
                         <input type="radio" name="tipo_entrega" value="mesa">
                         <div class="radio-content">
-                            <span style="font-size:24px;">🛋️</span>
+                            <span style="font-size:24px;">🛎️</span>
                             <span>Na Mesa</span>
                         </div>
                     </label>
@@ -112,7 +112,8 @@
             </div>
 
             <p style="font-size:12px; color:#666; text-align:center; margin-bottom:10px;">
-                Ao confirmar, seu pedido será enviado para a produção.
+                Ao confirmar, seu pedido será marcado na sua comanda e enviado para cozinha/bar.
+                * em caso de não localizar o cliente, o pedido voltará a cozinha e continuará na comanda. Busque um garçom para te ajudar.
             </p>
         </div>
 
@@ -220,9 +221,9 @@
 
             trigger.addEventListener('touchend', e => {
                 let touchEndY = e.changedTouches[0].screenY;
-                // Se arrastou pra CIMA (abre)
+               
                 if (touchStartY - touchEndY > 50 && !isExpanded) toggleSheet();
-                // Se arrastou pra BAIXO (fecha)
+                
                 if (touchEndY - touchStartY > 50 && isExpanded) toggleSheet();
             });
 
