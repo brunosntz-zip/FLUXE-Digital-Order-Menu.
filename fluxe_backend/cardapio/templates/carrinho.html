@@ -6,8 +6,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Seu Pedido</title>
     <link rel="stylesheet" href="{% static 'css/carrinho.css' %}">
+    <style>
+        /* CSS EXTRA ESPECÍFICO PARA O CHECKOUT MODERNO */
+        
+        /* Fundo escuro quando abre o sheet (opcional, dá destaque) */
+        .sheet-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3); z-index: 90; 
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .sheet-backdrop.active { opacity: 1; pointer-events: all; }
+
+        /* O Sheet em si */
+        .checkout-area {
+            z-index: 100; /* Fica acima de tudo */
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* Área de Pega (Handle) */
+        .sheet-handle-area {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 10px 0; cursor: pointer;
+        }
+        
+        /* A "Pílula" cinza (Padrão iOS/Android) */
+        .sheet-handle-bar {
+            width: 40px; height: 5px; background-color: #e0e0e0;
+            border-radius: 10px; margin-bottom: 6px;
+        }
+
+        /* A Setinha SVG que gira */
+        .sheet-chevron {
+            width: 20px; height: 20px; color: #adb5bd;
+            transition: transform 0.3s ease;
+        }
+
+        /* Botões de Rádio (Switch) */
+        .radio-box { flex: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .radio-box input { display: none; }
+        
+        .radio-content {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border: 1px solid #dee2e6; border-radius: 12px; padding: 15px;
+            color: #6c757d; transition: all 0.2s; background: #fff; gap: 8px;
+            font-weight: 500; font-size: 14px; height: 100%;
+        }
+        
+        /* Estado Selecionado */
+        .radio-box input:checked + .radio-content {
+            border-color: #007bff; background-color: #f0f7ff; color: #007bff; font-weight: 700;
+            box-shadow: 0 4px 12px rgba(0,123,255,0.15); transform: translateY(-2px);
+        }
+
+        /* Animação do Input da Mesa */
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        #box-numero-mesa { animation: slideDown 0.3s ease forwards; }
+
+        /* Box de Aviso */
+        .alert-box {
+            background: #fff3cd; border: 1px solid #ffeeba; 
+            padding: 12px; border-radius: 8px; margin-bottom: 15px;
+            display: flex; gap: 10px; align-items: flex-start;
+        }
+        .alert-box p { font-size: 12px; color: #856404; margin: 0; line-height: 1.4; text-align: left; }
+
+        /* Ajuste do botão principal */
+        .btn-blue {
+            transition: background 0.2s, transform 0.1s;
+        }
+        .btn-blue:active { transform: scale(0.98); }
+        .btn-blue:disabled { background: #ccc; cursor: not-allowed; }
+
+    </style>
 </head>
 <body>
+
+    <div class="sheet-backdrop" id="sheet-backdrop"></div>
 
     <header class="header">
         <a href="{% url 'home' %}" class="icon-btn">❮ Voltar</a>
@@ -15,8 +93,7 @@
         <div style="width: 24px;"></div> 
     </header>
 
-    <div class="container">
-        <div class="banner-18">
+    <div class="container" style="padding-bottom: 120px;"> <div class="banner-18">
             <div class="icon-18">18</div>
             <span class="text-18">Álcool proibido para menores de idade.</span>
         </div>
@@ -32,7 +109,7 @@
                             <div class="prod-name">{{ item.produto.nome }}</div>
                             <span class="prod-cat">{{ item.produto.categoria.nome|default:"Bebidas" }}</span>
                         </div>
-                        <a href="{% url 'excluir_item_carrinho' item.produto.id %}" class="trash-icon">
+                        <a href="{% url 'remove_carrinho' item.produto.id %}" class="trash-icon">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                         </a>
                     </div>
@@ -61,83 +138,87 @@
     <div class="checkout-area" id="checkout-sheet">
         
         <div class="sheet-handle-area" id="sheet-trigger">
-            <div class="sheet-handle"></div>
-            <div class="sheet-arrow">▲</div> 
+            <div class="sheet-handle-bar"></div>
+            <svg class="sheet-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
         </div>
 
         <div class="total-row">
             <span>Total</span>
-            <span>R$ {{ total }}</span>
+            <span style="color: #007bff;">R$ {{ total }}</span>
         </div>
 
         <div class="sheet-expandable-content" id="sheet-content">
             
-            <label class="label-cpf">Quem é você?</label>
-            {% if cliente_logado %}
-                <div class="input-cpf-box" style="background: #e9ecef; border:none;">
-                    <span style="font-weight:600; color:#495057;">CPF: {{ cliente_logado }}</span>
-                </div>
-            {% else %}
-                <div class="input-cpf-box">
-                    <svg class="cpf-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    <input type="tel" class="input-cpf" id="input-cpf-checkout" placeholder="CPF">
-                </div>
-            {% endif %}
-
-            <div style="margin-top: 15px; margin-bottom: 20px;">
-                <label class="label-cpf">Como deseja receber?</label>
+            <div style="margin-bottom: 20px;">
+                <label class="label-cpf" style="font-size: 12px; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 6px; display: block;">
+                    Vincular à Comanda (CPF)
+                </label>
                 
-                <div class="entrega-switch" style="display:flex; gap:10px;">
+                {% if cliente_logado %}
+                    <div class="input-cpf-box" style="background: #f8f9fa; border: 1px solid #e9ecef;">
+                        <span style="font-weight:700; color:#212529; font-size: 16px;">
+                            🔒 {{ cliente_logado }}
+                        </span>
+                    </div>
+                {% else %}
+                    <div class="input-cpf-box" style="transition: border-color 0.2s;">
+                        <svg class="cpf-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        
+                        <input type="tel" class="input-cpf" id="input-cpf-checkout" 
+                               placeholder="Digite apenas os números"
+                               style="font-weight: 500; font-size: 16px;">
+                    </div>
+                {% endif %}
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label class="label-cpf" style="font-size: 12px; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 6px; display: block;">
+                    Opção de Entrega
+                </label>
+                
+                <div class="entrega-switch" style="display:flex; gap:12px;">
                     <label class="radio-box" onclick="toggleMesa(false)">
                         <input type="radio" name="tipo_entrega" value="retirada" checked>
                         <div class="radio-content">
-                            <span style="font-size:24px;">🍸</span>
-                            <span>Buscar no Bar</span>
+                            <span style="font-size:28px; margin-bottom: 4px;">🍸</span>
+                            <span style="font-size: 13px;">Buscar no Bar</span>
                         </div>
                     </label>
 
                     <label class="radio-box" onclick="toggleMesa(true)">
                         <input type="radio" name="tipo_entrega" value="mesa">
                         <div class="radio-content">
-                            <span style="font-size:24px;">🛎️</span>
-                            <span>Na Mesa</span>
+                            <span style="font-size:28px; margin-bottom: 4px;">🛎️</span>
+                            <span style="font-size: 13px;">Na Mesa</span>
                         </div>
                     </label>
                 </div>
 
-                <div id="box-numero-mesa" style="display:none; margin-top:10px;">
-                    <input type="number" id="input-mesa" placeholder="Digite o número da Mesa" 
-                           style="width:100%; padding:12px; border-radius:12px; border:1px solid #ced4da; font-size:16px; outline:none;">
+                <div id="box-numero-mesa" style="display:none; margin-top:12px;">
+                    <div style="position: relative;">
+                        <span style="position: absolute; left: 15px; top: 13px; font-size: 14px; color: #666;">Mesa nº</span>
+                        <input type="number" id="input-mesa" placeholder="Ex: 12" 
+                               style="width:100%; padding:12px 12px 12px 80px; border-radius:12px; border: 1px solid #ced4da; font-size:16px; outline:none; font-weight: bold; color: #007bff;">
+                    </div>
                 </div>
             </div>
 
-            <p style="font-size:12px; color:#666; text-align:center; margin-bottom:10px;">
-                Ao confirmar, seu pedido será marcado na sua comanda e enviado para cozinha/bar.
-                * em caso de não localizar o cliente, o pedido voltará a cozinha e continuará na comanda. Busque um garçom para te ajudar.
-            </p>
+            <div class="alert-box">
+                <span style="font-size: 16px;">ℹ️</span>
+                <p>
+                    <strong>Importante:</strong> Ao confirmar, o valor entra na sua comanda. 
+                    Se escolher "Buscar no Bar", fique atento ao chamado!
+                </p>
+            </div>
         </div>
 
-        <button class="btn-blue" id="btn-action">Fechar Pedido</button>
+        <button class="btn-blue" id="btn-action">
+            <span id="btn-text">Fechar Pedido</span>
+        </button>
     </div>
     {% endif %}
-
-    <style>
-        .radio-box { flex: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .radio-box input { display: none; } /* Esconde a bolinha padrão feia */
-        
-        .radio-content {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            border: 1px solid #dee2e6; border-radius: 12px; padding: 12px;
-            color: #6c757d; transition: all 0.2s; background: #fff; gap: 5px;
-            font-weight: 500; font-size: 14px;
-        }
-        
-        /* Quando selecionado (Ativo) */
-        .radio-box input:checked + .radio-content {
-            border-color: #007bff; background-color: #f0f7ff; color: #007bff; font-weight: 700;
-            box-shadow: 0 2px 5px rgba(0,123,255,0.1);
-        }
-    </style>
 
     <script>
         // Função Global para controlar a mesa
@@ -146,11 +227,10 @@
             const inputMesa = document.getElementById('input-mesa');
             if (mostrar) {
                 box.style.display = 'block';
-                // Foca no input pra facilitar a vida do usuário
                 if(inputMesa) setTimeout(() => inputMesa.focus(), 100);
             } else {
                 box.style.display = 'none';
-                if(inputMesa) inputMesa.value = ''; // Limpa se desistir da mesa
+                if(inputMesa) inputMesa.value = ''; 
             }
         }
 
@@ -158,8 +238,10 @@
             const sheet = document.getElementById('checkout-sheet');
             const trigger = document.getElementById('sheet-trigger');
             const btn = document.getElementById('btn-action');
+            const btnText = document.getElementById('btn-text');
             const inputCpf = document.getElementById('input-cpf-checkout');
-            const arrow = document.querySelector('.sheet-arrow');
+            const chevron = document.querySelector('.sheet-chevron');
+            const backdrop = document.getElementById('sheet-backdrop');
             
             if(!sheet) return;
 
@@ -169,37 +251,42 @@
                 isExpanded = !isExpanded;
                 if (isExpanded) {
                     sheet.classList.add('expanded');
-                    arrow.style.transform = "rotate(180deg)"; // Gira a setinha
-                    btn.textContent = "Confirmar Pedido";
+                    if(backdrop) backdrop.classList.add('active');
                     
-                    // Foca no CPF só se não estiver logado
+                    // Gira a setinha para baixo
+                    chevron.style.transform = "rotate(180deg)"; 
+                    btnText.textContent = "Confirmar Pedido";
+                    
                     if(inputCpf) setTimeout(() => inputCpf.focus(), 300);
                     
                 } else {
                     sheet.classList.remove('expanded');
-                    arrow.style.transform = "rotate(0deg)";
-                    btn.textContent = "Fechar Pedido"; 
+                    if(backdrop) backdrop.classList.remove('active');
+                    
+                    // Gira a setinha para cima
+                    chevron.style.transform = "rotate(0deg)";
+                    btnText.textContent = "Fechar Pedido"; 
+                    
                     if(inputCpf) inputCpf.blur();
                 }
             }
 
-            // Clique na barra cinza
+            // Clique na área da "pílula"
             trigger.addEventListener('click', toggleSheet);
+            if(backdrop) backdrop.addEventListener('click', toggleSheet); // Fecha clicando fora
 
             // Clique no botão principal
             btn.addEventListener('click', () => {
                 if (!isExpanded) {
-                    toggleSheet(); // Abre se estiver fechado
+                    toggleSheet(); 
                 } else {
-                    // --- AQUI VAI ENTRAR O ENVIO PRO BACKEND ---
-                    // Por enquanto, validação simples visual
+                    // --- VALIDAÇÃO & ENVIO ---
                     if(inputCpf && inputCpf.value.length < 14) {
                         alert("Por favor, preencha seu CPF corretamente.");
                         inputCpf.focus();
                         return;
                     }
                     
-                    // Verifica se pediu mesa mas não digitou
                     const isMesa = document.querySelector('input[name="tipo_entrega"]:checked').value === 'mesa';
                     const numMesa = document.getElementById('input-mesa').value;
 
@@ -209,11 +296,44 @@
                         return;
                     }
 
-                    alert("🚀 Enviando pedido... (Backend next step)");
+                    // Prepara envio
+                    btn.disabled = true;
+                    btnText.textContent = "Enviando...";
+
+                    const cpfValor = inputCpf ? inputCpf.value : '';
+                    const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked').value;
+
+                    // Fetch para API
+                    fetch('/api/fechar_pedido/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            cpf: cpfValor,
+                            tipo_entrega: tipoEntrega,
+                            numero_mesa: numMesa
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.status === 'sucesso') {
+                            alert("✅ Pedido Enviado!");
+                            window.location.href = "/";
+                        } else {
+                            alert("⚠️ " + data.msg);
+                            btn.disabled = false;
+                            btnText.textContent = "Tentar Novamente";
+                        }
+                    })
+                    .catch(e => {
+                        console.error(e);
+                        alert("Erro de conexão. Tente novamente.");
+                        btn.disabled = false;
+                        btnText.textContent = "Confirmar Pedido";
+                    });
                 }
             });
 
-            // Detecção de Swipe (Arrastar dedo)
+            // Swipe Logic
             let touchStartY = 0;
             trigger.addEventListener('touchstart', e => {
                 touchStartY = e.changedTouches[0].screenY;
@@ -221,13 +341,11 @@
 
             trigger.addEventListener('touchend', e => {
                 let touchEndY = e.changedTouches[0].screenY;
-               
                 if (touchStartY - touchEndY > 50 && !isExpanded) toggleSheet();
-                
                 if (touchEndY - touchStartY > 50 && isExpanded) toggleSheet();
             });
 
-            // Máscara de CPF
+            // Máscara CPF
             if(inputCpf) {
                 inputCpf.addEventListener('input', function (e) {
                     let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,3})(\d{0,2})/);
