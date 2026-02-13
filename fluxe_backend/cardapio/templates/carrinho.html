@@ -62,7 +62,8 @@
         
         <div class="sheet-handle-area" id="sheet-trigger">
             <div class="sheet-handle"></div>
-            <div class="sheet-arrow">▲</div> </div>
+            <div class="sheet-arrow">▲</div> 
+        </div>
 
         <div class="total-row">
             <span>Total</span>
@@ -70,8 +71,8 @@
         </div>
 
         <div class="sheet-expandable-content" id="sheet-content">
-            <label class="label-cpf">Identificação (CPF)</label>
             
+            <label class="label-cpf">Quem é você?</label>
             {% if cliente_logado %}
                 <div class="input-cpf-box" style="background: #e9ecef; border:none;">
                     <span style="font-weight:600; color:#495057;">CPF: {{ cliente_logado }}</span>
@@ -79,12 +80,39 @@
             {% else %}
                 <div class="input-cpf-box">
                     <svg class="cpf-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    <input type="tel" class="input-cpf" id="input-cpf-checkout" placeholder="000.000.000-00">
+                    <input type="tel" class="input-cpf" id="input-cpf-checkout" placeholder="CPF (apenas números)">
                 </div>
             {% endif %}
 
+            <div style="margin-top: 15px; margin-bottom: 20px;">
+                <label class="label-cpf">Como deseja receber?</label>
+                
+                <div class="entrega-switch" style="display:flex; gap:10px;">
+                    <label class="radio-box" onclick="toggleMesa(false)">
+                        <input type="radio" name="tipo_entrega" value="retirada" checked>
+                        <div class="radio-content">
+                            <span style="font-size:24px;">🍺</span>
+                            <span>Buscar no Bar</span>
+                        </div>
+                    </label>
+
+                    <label class="radio-box" onclick="toggleMesa(true)">
+                        <input type="radio" name="tipo_entrega" value="mesa">
+                        <div class="radio-content">
+                            <span style="font-size:24px;">🛋️</span>
+                            <span>Na Mesa</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div id="box-numero-mesa" style="display:none; margin-top:10px;">
+                    <input type="number" id="input-mesa" placeholder="Digite o número da Mesa" 
+                           style="width:100%; padding:12px; border-radius:12px; border:1px solid #ced4da; font-size:16px; outline:none;">
+                </div>
+            </div>
+
             <p style="font-size:12px; color:#666; text-align:center; margin-bottom:10px;">
-                Ao confirmar, seu pedido será enviado para a cozinha.
+                Ao confirmar, seu pedido será enviado para a produção.
             </p>
         </div>
 
@@ -92,12 +120,45 @@
     </div>
     {% endif %}
 
+    <style>
+        .radio-box { flex: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .radio-box input { display: none; } /* Esconde a bolinha padrão feia */
+        
+        .radio-content {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border: 1px solid #dee2e6; border-radius: 12px; padding: 12px;
+            color: #6c757d; transition: all 0.2s; background: #fff; gap: 5px;
+            font-weight: 500; font-size: 14px;
+        }
+        
+        /* Quando selecionado (Ativo) */
+        .radio-box input:checked + .radio-content {
+            border-color: #007bff; background-color: #f0f7ff; color: #007bff; font-weight: 700;
+            box-shadow: 0 2px 5px rgba(0,123,255,0.1);
+        }
+    </style>
+
     <script>
+        // Função Global para controlar a mesa
+        function toggleMesa(mostrar) {
+            const box = document.getElementById('box-numero-mesa');
+            const inputMesa = document.getElementById('input-mesa');
+            if (mostrar) {
+                box.style.display = 'block';
+                // Foca no input pra facilitar a vida do usuário
+                if(inputMesa) setTimeout(() => inputMesa.focus(), 100);
+            } else {
+                box.style.display = 'none';
+                if(inputMesa) inputMesa.value = ''; // Limpa se desistir da mesa
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const sheet = document.getElementById('checkout-sheet');
             const trigger = document.getElementById('sheet-trigger');
             const btn = document.getElementById('btn-action');
             const inputCpf = document.getElementById('input-cpf-checkout');
+            const arrow = document.querySelector('.sheet-arrow');
             
             if(!sheet) return;
 
@@ -107,16 +168,21 @@
                 isExpanded = !isExpanded;
                 if (isExpanded) {
                     sheet.classList.add('expanded');
+                    arrow.style.transform = "rotate(180deg)"; // Gira a setinha
                     btn.textContent = "Confirmar Pedido";
+                    
+                    // Foca no CPF só se não estiver logado
                     if(inputCpf) setTimeout(() => inputCpf.focus(), 300);
+                    
                 } else {
                     sheet.classList.remove('expanded');
-                    btn.textContent = "Fechar Pedido"; // Volta ao texto original
+                    arrow.style.transform = "rotate(0deg)";
+                    btn.textContent = "Fechar Pedido"; 
                     if(inputCpf) inputCpf.blur();
                 }
             }
 
-            // Clique na barra cinza ou setinha
+            // Clique na barra cinza
             trigger.addEventListener('click', toggleSheet);
 
             // Clique no botão principal
@@ -124,8 +190,25 @@
                 if (!isExpanded) {
                     toggleSheet(); // Abre se estiver fechado
                 } else {
-                    // AQUI ENTRA O POST DO PEDIDO NO FUTURO
-                    alert("Enviando pedido...");
+                    // --- AQUI VAI ENTRAR O ENVIO PRO BACKEND ---
+                    // Por enquanto, validação simples visual
+                    if(inputCpf && inputCpf.value.length < 14) {
+                        alert("Por favor, preencha seu CPF corretamente.");
+                        inputCpf.focus();
+                        return;
+                    }
+                    
+                    // Verifica se pediu mesa mas não digitou
+                    const isMesa = document.querySelector('input[name="tipo_entrega"]:checked').value === 'mesa';
+                    const numMesa = document.getElementById('input-mesa').value;
+
+                    if (isMesa && !numMesa) {
+                        alert("Por favor, digite o número da sua mesa.");
+                        document.getElementById('input-mesa').focus();
+                        return;
+                    }
+
+                    alert("🚀 Enviando pedido... (Backend next step)");
                 }
             });
 
@@ -133,13 +216,13 @@
             let touchStartY = 0;
             trigger.addEventListener('touchstart', e => {
                 touchStartY = e.changedTouches[0].screenY;
-            });
+            }, {passive: true});
 
             trigger.addEventListener('touchend', e => {
                 let touchEndY = e.changedTouches[0].screenY;
-                // Se arrastou pra CIMA (valor diminui) -> Abre
+                // Se arrastou pra CIMA (abre)
                 if (touchStartY - touchEndY > 50 && !isExpanded) toggleSheet();
-                // Se arrastou pra BAIXO (valor aumenta) -> Fecha
+                // Se arrastou pra BAIXO (fecha)
                 if (touchEndY - touchStartY > 50 && isExpanded) toggleSheet();
             });
 
