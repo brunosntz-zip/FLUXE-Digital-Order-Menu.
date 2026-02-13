@@ -1,5 +1,13 @@
+import os
 from pathlib import Path
 import dj_database_url
+
+# Tenta carregar as variáveis do arquivo .env (para uso local)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass # Se não tiver python-dotenv instalado ou estiver na Vercel, segue normal
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,11 +16,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-#(83*=(f=yx8l&9d0+qbp!*lqev88lacc833lgb9$wqj$+r&x_'
+# --- SEGURANÇA MÁXIMA ---
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# 1. SECRET_KEY: Lê do ambiente.
+# Se não achar (ex: esqueceu de configurar), usa uma chave falsa só pra não quebrar localmente.
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-chave-reserva-local')
+
+# 2. DEBUG:
+# O padrão é 'False' (seguro). Só vira 'True' se o .env mandar.
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['.vercel.app', '127.0.0.1', 'localhost', '*']
 
@@ -64,9 +76,13 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# 3. BANCO DE DADOS INTELIGENTE:
+# O comando dj_database_url.config busca automaticamente pela variável "DATABASE_URL"
 DATABASES = {
-    'default': dj_database_url.parse(
-                'postgresql://postgres.fkxejnpjeoctlxiuhpvs:Chapeleiro%237051@aws-1-sa-east-1.pooler.supabase.com:6543/postgres'
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3', # Fallback: se não achar a URL, cria um banco local simples
+        conn_max_age=600,
+        ssl_require=True
     )
 }
 
