@@ -1,10 +1,15 @@
 # ⚡ Fluxe - Cardápio Digital com Autoatendimento
 
-[![Deploy with Vercel](https://vercel.com/button)](https://SEU-LINK-DO-VERCEL.app)
-![Status](https://img.shields.io/badge/Status-MVP%20Online-success?style=for-the-badge&logo=vercel&logoColor=white)
-![Backend](https://img.shields.io/badge/Backend-Django%20REST-092E20?style=for-the-badge&logo=django&logoColor=white)
-![Database](https://img.shields.io/badge/Database-PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
-![Frontend](https://img.shields.io/badge/Frontend-Vanilla%20JS-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+<div align="center">
+
+[![Deploy with Vercel](https://vercel.com/button)](https://fluxe-digital-order-menu.vercel.app)
+![Status](https://img.shields.io/badge/Status-MVP%20Online-2ea44f?style=flat&logo=vercel&logoColor=white)
+
+<br>
+
+<img src="https://skillicons.dev/icons?i=python,django,postgres,js,html,css,vercel&perline=7" />
+
+</div>
 
 > **Projeto Integrador (P.I.) do 4º semestre de Análise e Desenvolvimento de Sistemas.**
 

@@ -1,4 +1,4 @@
-# .gitignore
+# .gitignore atualizado
 .env
 __pycache__/
 *.py[cod]
@@ -6,4 +6,4 @@ db.sqlite3
 .DS_Store
 venv/
 .vscode/
-.txt
+*.txt
