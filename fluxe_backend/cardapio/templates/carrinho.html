@@ -209,7 +209,7 @@
                 <span style="font-size: 16px;">ℹ️</span>
                 <p>
                     <strong>Importante:</strong> Ao confirmar, o valor entra na sua comanda. 
-                    Se escolher "Buscar no Bar", fique atento ao chamado!
+                    Se escolher "Retirar no Bar", será gerado um QR Code para retirada!
                 </p>
             </div>
         </div>
@@ -280,7 +280,7 @@
                 if (!isExpanded) {
                     toggleSheet(); 
                 } else {
-                    // --- VALIDAÇÃO & ENVIO ---
+                    // validação
                     if(inputCpf && inputCpf.value.length < 14) {
                         alert("Por favor, preencha seu CPF corretamente.");
                         inputCpf.focus();
@@ -333,7 +333,7 @@
                 }
             });
 
-            // Swipe Logic
+            // logica de swipe
             let touchStartY = 0;
             trigger.addEventListener('touchstart', e => {
                 touchStartY = e.changedTouches[0].screenY;
