@@ -125,18 +125,23 @@ class Produto(models.Model):
         return self.nome 
 
 class Pedido(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    restaurante = models.ForeignKey('Restaurante', on_delete=models.PROTECT) 
-    comanda = models.ForeignKey(Comanda, on_delete=models.PROTECT) 
-    mesa = models.ForeignKey(Mesa, on_delete=models.PROTECT, null=True, blank=True) 
+    id = models.UUIDField(primary_key=True)
+    restaurante = models.ForeignKey('Restaurante', models.PROTECT) 
+    comanda = models.ForeignKey(Comanda, models.PROTECT) 
+    
+    # 👇 MUDANÇA 1: null=True, blank=True (Permite pedir sem mesa/no bar)
+    mesa = models.ForeignKey(Mesa, models.PROTECT, null=True, blank=True) 
+    
+    # 👇 MUDANÇA 2: Criando o campo que deu erro
+    tipo_entrega = models.CharField(max_length=20, default='RETIRADA')
+    
     status = models.CharField(max_length=15)
     observacao = models.CharField(max_length=255, blank=True, null=True)
     valor_total = models.DecimalField(max_digits=10, decimal_places=2)
-    criado_em = models.DateTimeField(auto_now_add=True)
+    criado_em = models.DateTimeField(blank=True, null=True)
     preparado_em = models.DateTimeField(blank=True, null=True)
     entregue_em = models.DateTimeField(blank=True, null=True)
-    atualizado_em = models.DateTimeField(auto_now=True)
-    eh_retirada = models.BooleanField(default=False, verbose_name="Retirar no Balcão")
+    atualizado_em = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         db_table = 'pedido'
