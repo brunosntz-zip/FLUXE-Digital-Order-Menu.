@@ -11,7 +11,8 @@ from cardapio.views import (
     limpar_carrinho,
     home,      
     detalhes,
-    excluir_item_carrinho
+    excluir_item_carrinho,
+    fechar_pedido
 )
 
 # Configuração da API
@@ -39,4 +40,5 @@ urlpatterns = [
     path('carrinho/limpar/', limpar_carrinho, name='limpar_carrinho'),
     path('api/identificar/', identificar_cliente, name='identificar_cliente'),
     path('carrinho/excluir/<str:produto_id>/', excluir_item_carrinho, name='excluir_item_carrinho'), 
+    path('api/fechar_pedido/', fechar_pedido, name='fechar_pedido'),
 ]
