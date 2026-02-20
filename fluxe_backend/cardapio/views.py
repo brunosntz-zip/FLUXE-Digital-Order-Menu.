@@ -4,6 +4,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
+import uuid # <-- Nosso gerador de IDs únicos
 
 # Importamos todos os "Moldes" (Models) do banco de dados que vamos precisar usar aqui
 from .models import CategoriaProduto, Produto, Restaurante, Cliente, Comanda, Mesa, Pedido, ItemPedido
@@ -246,12 +247,10 @@ def fechar_pedido(request):
         if not comanda:
             return JsonResponse({'status': 'erro', 'msg': 'Sua comanda não está aberta!'}, status=403)
 
-        # 3. LOGÍCA DE ENTREGA/MESA (Ajuste Crítico feito aqui!)
+        # 3. LOGÍCA DE ENTREGA/MESA
         obj_mesa = None
-        is_retirada = True # Por padrão, assume que é buscar no bar
         
         if tipo_entrega == 'mesa':
-            is_retirada = False # Se escolheu mesa, muda a flag
             if not numero_mesa:
                 return JsonResponse({'status': 'erro', 'msg': 'Informe o número da mesa!'}, status=400)
             
@@ -262,11 +261,12 @@ def fechar_pedido(request):
 
         # 4. Cria o Pedido Oficial (A "Capa" do pedido)
         novo_pedido = Pedido.objects.create(
+            id=uuid.uuid4(), # <-- Geramos o ID único manualmente pra evitar erro no banco
             restaurante_id=ID_RESTAURANTE,
             comanda=comanda,
             mesa=obj_mesa, 
             status='PENDENTE', # Vai aparecer no painel da cozinha
-            eh_retirada=is_retirada, # Booleano correto que o banco pede
+            tipo_entrega=tipo_entrega.upper() if tipo_entrega else 'RETIRADA', # Manda 'MESA' ou 'RETIRADA' pro banco
             valor_total=0 # Começa zerado, vamos somar os itens logo abaixo
         )
 
