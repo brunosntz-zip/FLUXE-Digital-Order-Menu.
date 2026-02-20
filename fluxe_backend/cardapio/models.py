@@ -85,7 +85,7 @@ class Mesa(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     restaurante = models.ForeignKey('Restaurante', on_delete=models.PROTECT) 
     numero = models.CharField(max_length=10)
-    qr_code_slug = models.CharField(unique=True, max_length=120)
+    qr_code_slug = models.CharField(unique=True, max_length=120, blank=True, null=True)
     ativo = models.BooleanField(default=True)
     criado_em = models.DateTimeField(auto_now_add=True)
 
