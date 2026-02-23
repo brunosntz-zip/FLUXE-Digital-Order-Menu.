@@ -145,7 +145,7 @@ body {
 .input-cpf { border: none; outline: none; width: 100%; font-size: 15px; }
 
 .btn-blue {
-    background: #007bff; color: white; width: 100%; border: none;
+    background: #7B2CBF; color: white; width: 100%; border: none;
     padding: 16px; border-radius: 50px; font-size: 16px; font-weight: 700;
     cursor: pointer; margin-top: 10px;
     box-shadow: 0 4px 10px rgba(0,123,255,0.3);
