@@ -9,6 +9,46 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{% static 'css/tela-inicial-cardapio.css' %}">
   <link rel="stylesheet" href="{% static 'css/detalhes.css' %}">
+  
+  <style>
+    /* 👇 ESTILO FORÇADO PARA OS BOTÕES DE + E - FICAREM BONITOS E ROXOS */
+    .quantity-area {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        margin-top: 16px;
+        margin-bottom: 20px;
+    }
+    .qty-btn {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        color: #7B2CBF; /* Roxo Fluxe */
+        font-size: 24px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        padding-bottom: 3px; /* Alinhamento óptico do símbolo */
+    }
+    .qty-btn:active {
+        background: #f3e8ff;
+        border-color: #7B2CBF;
+        transform: scale(0.95);
+    }
+    #qty-display {
+        font-size: 18px;
+        font-weight: 700;
+        min-width: 24px;
+        text-align: center;
+        color: #111;
+    }
+  </style>
 </head>
 <body>
   <div class="app">
@@ -124,11 +164,9 @@
  <script>
   document.addEventListener("DOMContentLoaded", () => {
       
-      // 1. Pega o preço cru do Django e transforma em número JS
       const rawPrice = "{{ produto.preco_atual }}".replace(',', '.');
       const precoUnitario = parseFloat(rawPrice);
       
-      // Elementos
       const qtySpan = document.getElementById('qty-display');
       const inputQty = document.getElementById('input-qty');
       const btnTotal = document.getElementById('btn-total');
@@ -138,19 +176,16 @@
 
       let quantidade = 1;
 
-      // 2. Função de Formatação Brasil
       function formatarMoeda(valor) {
           return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
       }
 
-      // 3. Atualiza os valores na tela
       function atualizarValores() {
           const total = precoUnitario * quantidade;
           btnTotal.textContent = formatarMoeda(total);
           if(precoTopo) precoTopo.textContent = formatarMoeda(precoUnitario);
       }
 
-      // Eventos dos botões + e -
       if(btnMais) {
           btnMais.addEventListener('click', () => {
             quantidade++;

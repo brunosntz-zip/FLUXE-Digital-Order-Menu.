@@ -57,7 +57,7 @@
     </nav>
 
     <div id="cardapio-completo">
-      <p style="padding: 20px; text-align: center; color: #7B2CBF; font-weight: 500;">Carregando cardápio...</p>
+      <p style="padding: 20px; text-align: center; color: #999;">Carregando cardápio...</p>
     </div>
 
     <footer style="text-align: center; padding: 40px 20px; color: #adb5bd; font-size: 12px; font-weight: 500; letter-spacing: 0.5px; opacity: 0.8;">
@@ -128,7 +128,6 @@
         box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         border: 1px solid #333;
     }
-    /* 👇 Roxo aplicado no título do modal */
     .modal-box h3 { margin-top: 0; color: #7B2CBF; } 
     .modal-box input {
         width: 100%; padding: 12px; margin: 15px 0;
@@ -136,11 +135,9 @@
         background: #2a2a2a; color: #fff; font-size: 18px; text-align: center;
         outline: none;
     }
-    /* 👇 Roxo aplicado na borda do input ao clicar */
     .modal-box input:focus { border-color: #7B2CBF; }
     .modal-actions { display: flex; gap: 10px; justify-content: center; }
     
-    /* 👇 Roxo aplicado no botão de confirmar */
     .btn-confirmar {
         background: #7B2CBF; color: #fff; border: none; padding: 10px 20px;
         border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1;
@@ -158,31 +155,27 @@
 </style>
 
 <script>
-    // Pega a variável que o Django mandou (True se tiver CPF, None se não)
     const CLIENTE_LOGADO = "{{ cliente_logado|default_if_none:'' }}"; 
-    let acaoPendente = null; // Guarda o que o usuário queria fazer antes de ser barrado
+    let acaoPendente = null; 
 
-    // Formata CPF enquanto digita
     document.getElementById('input-cpf').addEventListener('input', function (e) {
         let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,3})(\d{0,2})/);
         e.target.value = !x[2] ? x[1] : x[1] + '.' + x[2] + (x[3] ? '.' + x[3] : '') + (x[4] ? '-' + x[4] : '');
     });
 
-    // Intercepta todos os formulários de "Adicionar"
     document.addEventListener("DOMContentLoaded", function() {
         const forms = document.querySelectorAll("form[action*='add']");
         
         forms.forEach(form => {
             form.addEventListener("submit", function(e) {
                 if (!CLIENTE_LOGADO) {
-                    e.preventDefault(); // PARE! Não envie o form.
-                    acaoPendente = () => form.submit(); // Guarda a ação pra depois
+                    e.preventDefault(); 
+                    acaoPendente = () => form.submit(); 
                     abrirModal();
                 }
             });
         });
 
-        // Intercepta links diretos (se houver botões <a> de adicionar)
         const links = document.querySelectorAll("a[href*='/carrinho/add/']");
         links.forEach(link => {
             link.addEventListener("click", function(e) {
@@ -219,7 +212,6 @@
         btn.innerText = "Validando...";
         btn.disabled = true;
 
-        // Bate na API que criamos no Django
         fetch('/api/identificar/', {
             method: 'POST',
             headers: {
@@ -230,9 +222,6 @@
         .then(response => response.json())
         .then(data => {
             if (data.status === 'sucesso') {
-                // SUCESSO! Recarrega a página para o Django atualizar a sessão
-                // E tenta executar a ação que o usuário queria (embora o reload limpe a memória JS,
-                // na próxima vez ele já vai estar logado e vai passar direto).
                 window.location.reload(); 
             } else {
                 erroMsg.innerText = data.mensagem || "Erro ao validar CPF.";
