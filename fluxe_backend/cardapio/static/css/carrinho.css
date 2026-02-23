@@ -6,7 +6,7 @@
 body {
     background-color: #f8f9fa;
     color: #212529;
-    padding-bottom: 250px; /* Espaço para o rodapé não cobrir o último item */
+    padding-bottom: 250px; 
 }
 
 /* HEADER */
@@ -17,7 +17,8 @@ body {
     box-shadow: 0 2px 10px rgba(0,0,0,0.03);
 }
 .header h1 { font-size: 18px; font-weight: 700; color: #000; }
-.icon-btn { font-size: 16px; color: #0d6efd; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 5px;}
+/* 👇 Azul removido, agora é roxo */
+.icon-btn { font-size: 16px; color: #7B2CBF; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 5px;}
 
 /* CONTAINER */
 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
@@ -64,9 +65,10 @@ body {
     display: flex; align-items: center; background: #f1f3f5;
     border-radius: 20px; padding: 2px 4px;
 }
+/* 👇 Azul removido, agora é roxo */
 .qty-btn {
     width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-    color: #0d6efd; font-size: 18px; font-weight: 600; text-decoration: none; cursor: pointer;
+    color: #7B2CBF; font-size: 18px; font-weight: 600; text-decoration: none; cursor: pointer;
 }
 .qty-num { font-size: 14px; font-weight: 600; min-width: 20px; text-align: center; }
 
@@ -80,10 +82,8 @@ body {
     padding: 10px 20px 20px;
     box-shadow: 0 -5px 30px rgba(0,0,0,0.15);
     z-index: 1000;
-    /* Removemos o translateY perigoso. Ele fica sempre no bottom: 0 */
 }
 
-/* Puxador */
 .sheet-handle-area {
     width: 100%;
     padding: 10px 0;
@@ -91,7 +91,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    cursor: pointer; /* Indica clique */
+    cursor: pointer; 
 }
 
 .sheet-handle {
@@ -102,39 +102,34 @@ body {
     margin-bottom: 5px;
 }
 
-/* Seta animada */
+/* 👇 Seta animada roxa */
 .sheet-arrow {
     font-size: 14px;
-    color: #0d6efd;
+    color: #7B2CBF;
     transition: transform 0.3s ease;
 }
 
-/* Quando expandido, a seta gira */
 .checkout-area.expanded .sheet-arrow {
     transform: rotate(180deg);
 }
 
-/* Área que expande/recolhe */
 .sheet-expandable-content {
-    max-height: 0; /* Começa fechado */
+    max-height: 0; 
     overflow: hidden;
     opacity: 0;
     transition: max-height 0.4s ease, opacity 0.3s ease;
 }
 
-/* Estado Expandido */
 .checkout-area.expanded .sheet-expandable-content {
-    max-height: 500px; /* Valor alto o suficiente para caber o conteúdo */
+    max-height: 500px; 
     opacity: 1;
 }
 
-/* Resumo (Total) sempre visível */
 .total-row {
     display: flex; justify-content: space-between; font-size: 18px; font-weight: 800;
     margin-bottom: 10px; color: #000;
 }
 
-/* Inputs */
 .label-cpf { font-size: 14px; font-weight: 700; margin-bottom: 8px; display: block; }
 .input-cpf-box {
     display: flex; align-items: center; border: 1px solid #ced4da;
@@ -144,15 +139,16 @@ body {
 .cpf-icon { margin-right: 10px; color: #6c757d; }
 .input-cpf { border: none; outline: none; width: 100%; font-size: 15px; }
 
+/* 👇 Botão ajustado com sombra roxa e active roxo escuro */
 .btn-blue {
     background: #7B2CBF; color: white; width: 100%; border: none;
     padding: 16px; border-radius: 50px; font-size: 16px; font-weight: 700;
     cursor: pointer; margin-top: 10px;
-    box-shadow: 0 4px 10px rgba(0,123,255,0.3);
+    box-shadow: 0 4px 10px rgba(123, 44, 191, 0.3);
     transition: background 0.2s;
 }
-.btn-blue:active { background: #0056b3; transform: scale(0.98); }
+.btn-blue:active { background: #5c2092; transform: scale(0.98); }
 
-/* Mensagem Vazio */
 .empty-msg { text-align: center; margin-top: 50px; color: #6c757d; }
-.back-link { display: block; text-align: center; margin-top: 20px; color: #0d6efd; font-weight: 600; text-decoration: none; }
+/* 👇 Link de voltar roxo */
+.back-link { display: block; text-align: center; margin-top: 20px; color: #7B2CBF; font-weight: 600; text-decoration: none; }

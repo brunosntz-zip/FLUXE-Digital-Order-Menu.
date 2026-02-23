@@ -291,7 +291,7 @@ animation: rotation 1s linear infinite;
 }
 
 .sidebar-link:active { background: #f5f5f5; transform: scale(0.98); }
-.sidebar-link.destaque { color: #7B2CBF; background: #eef7ff; }
+.sidebar-link.destaque { color: #7B2CBF; background: #f3e8ff; }
 
 .divider { height: 1px; background: #eee; margin: 15px 0; }
 .menu-label { font-size: 0.85rem; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: block; }
