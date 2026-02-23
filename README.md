@@ -1,4 +1,4 @@
-# ⚡ Fluxe - Cardápio Digital com Autoatendimento
+# ⚡ FLUXE. - Cardápio Digital com Autoatendimento
 
 <div align="center">
 
