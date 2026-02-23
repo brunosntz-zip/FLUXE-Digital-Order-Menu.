@@ -55,8 +55,8 @@
         
         /* Estado Selecionado */
         .radio-box input:checked + .radio-content {
-            border-color: #007bff; background-color: #f0f7ff; color: #007bff; font-weight: 700;
-            box-shadow: 0 4px 12px rgba(0,123,255,0.15); transform: translateY(-2px);
+            border-color: #7B2CBF; background-color: #f3e8ff; color: #7B2CBF; font-weight: 700;
+            box-shadow: 0 4px 12px rgba(123, 44, 191, 0.15); transform: translateY(-2px);
         }
 
         /* Animação do Input da Mesa */
@@ -146,7 +146,7 @@
 
         <div class="total-row">
             <span>Total</span>
-            <span style="color: #007bff;">R$ {{ total }}</span>
+            <span style="color: #7B2CBF;">R$ {{ total }}</span>
         </div>
 
         <div class="sheet-expandable-content" id="sheet-content">
@@ -164,11 +164,9 @@
                     </div>
                 {% else %}
                     <div class="input-cpf-box" style="transition: border-color 0.2s;">
-                        <svg class="cpf-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                        
-                        <input type="tel" class="input-cpf" id="input-cpf-checkout" 
-                               placeholder="Digite apenas os números"
-                               style="font-weight: 500; font-size: 16px;">
+                        <svg class="cpf-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7B2CBF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+
+<input type="text" id="input-cpf-checkout" placeholder="000.000.000-00" style="width:100%; border:none; outline:none; font-size:15px;">
                     </div>
                 {% endif %}
             </div>
@@ -200,7 +198,7 @@
                     <div style="position: relative;">
                         <span style="position: absolute; left: 15px; top: 13px; font-size: 14px; color: #666;">Mesa nº</span>
                         <input type="number" id="input-mesa" placeholder="Ex: 12" 
-                               style="width:100%; padding:12px 12px 12px 80px; border-radius:12px; border: 1px solid #ced4da; font-size:16px; outline:none; font-weight: bold; color: #007bff;">
+                               style="width:100%; padding:12px 12px 12px 80px; border-radius:12px; border: 1px solid #ced4da; font-size:16px; outline:none; font-weight: bold; color: #7B2CBF;">
                     </div>
                 </div>
             </div>
@@ -316,8 +314,8 @@
                     .then(r => r.json())
                     .then(data => {
                         if (data.status === 'sucesso') {
-                            alert("✅ Pedido Enviado!");
-                            window.location.href = "/";
+                            // REDIRECIONA PARA A TELA NOVA COM QR CODE!
+                            window.location.href = `/pedido/${data.pedido_id}/`;
                         } else {
                             alert("⚠️ " + data.msg);
                             btn.disabled = false;

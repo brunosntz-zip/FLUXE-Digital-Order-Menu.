@@ -57,12 +57,12 @@
     </nav>
 
     <div id="cardapio-completo">
-      <p style="padding: 20px; text-align: center; color: #999;">Carregando cardápio...</p>
+      <p style="padding: 20px; text-align: center; color: #7B2CBF; font-weight: 500;">Carregando cardápio...</p>
     </div>
 
     <footer style="text-align: center; padding: 40px 20px; color: #adb5bd; font-size: 12px; font-weight: 500; letter-spacing: 0.5px; opacity: 0.8;">
         <p style="margin: 0;">
-            Desenvolvido por <span style="color: #6c757d; font-weight: 700;">FLUXE.</span> &copy; {% now "Y" %}
+            Desenvolvido por <span style="color: #7B2CBF; font-weight: 700;">FLUXE.</span> &copy; {% now "Y" %}
         </p>
         <p style="margin: 4px 0 0 0; font-size: 10px; opacity: 0.6;">Solução para bares e restaurantes.</p>
     </footer>
@@ -128,23 +128,33 @@
         box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         border: 1px solid #333;
     }
-    .modal-box h3 { margin-top: 0; color: #facc15; } /* Amarelo Fluxe */
+    /* 👇 Roxo aplicado no título do modal */
+    .modal-box h3 { margin-top: 0; color: #7B2CBF; } 
     .modal-box input {
         width: 100%; padding: 12px; margin: 15px 0;
         border-radius: 8px; border: 1px solid #444;
         background: #2a2a2a; color: #fff; font-size: 18px; text-align: center;
         outline: none;
     }
-    .modal-box input:focus { border-color: #facc15; }
+    /* 👇 Roxo aplicado na borda do input ao clicar */
+    .modal-box input:focus { border-color: #7B2CBF; }
     .modal-actions { display: flex; gap: 10px; justify-content: center; }
+    
+    /* 👇 Roxo aplicado no botão de confirmar */
     .btn-confirmar {
-        background: #facc15; color: #000; border: none; padding: 10px 20px;
+        background: #7B2CBF; color: #fff; border: none; padding: 10px 20px;
         border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1;
+        box-shadow: 0 4px 10px rgba(123, 44, 191, 0.3);
+        transition: transform 0.1s;
     }
+    .btn-confirmar:active { transform: scale(0.96); }
+    
     .btn-cancelar {
         background: transparent; color: #aaa; border: 1px solid #444; padding: 10px 20px;
         border-radius: 8px; cursor: pointer; flex: 1;
+        transition: transform 0.1s;
     }
+    .btn-cancelar:active { transform: scale(0.96); }
 </style>
 
 <script>
